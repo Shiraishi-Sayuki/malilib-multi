@@ -1071,6 +1071,12 @@ public class RenderUtils
         }
     }
 
+    // シムメソッド - 新API(minihud 0.30系)と同じ5引数版を用意、フラグは無視して4引数版に委譲する
+    public static void renderMapPreview(net.minecraft.item.ItemStack stack, int x, int y, int size, boolean shouldRenderAsItem)
+    {
+        renderMapPreview(stack, x, y, size);
+    }
+
     public static void renderShulkerBoxPreview(ItemStack stack, int baseX, int baseY, boolean useBgColors, DrawContext drawContext)
     {
         if (stack.hasNbt())

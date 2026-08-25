@@ -34,7 +34,10 @@ dependencies {
 tasks.named('compileJava', JavaCompile) {
 	dependsOn(configurations.commonJava)
 	def commonSrcDir = configurations.commonJava.singleFile
-	source(files(commonSrcDir).asFileTree.matching { exclude '**/mixin/MixinHandledScreen.java' })
+	source(files(commonSrcDir).asFileTree.matching {
+		exclude '**/mixin/MixinHandledScreen.java'
+		exclude '**/mixin/MixinInGameHud.java'
+	})
 }
 
 base {
