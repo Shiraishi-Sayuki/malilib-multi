@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -136,11 +135,8 @@ public class InventoryOverlayScreen extends Screen implements Drawable
                 xInv = xCenter + 2;
                 yInv = Math.min(yInv, yCenter - 92);
             }
-            if (previewData.be() instanceof CrafterBlockEntity cbe)
-            {
-                lockedSlots = BlockUtils.getDisabledSlots(cbe);
-            }
-            else if (previewData.nbt() != null && previewData.nbt().contains(NbtKeys.DISABLED_SLOTS))
+            // 1.20.1にはCrafterが無いのでNBT経由のみ
+            if (previewData.nbt() != null && previewData.nbt().contains(NbtKeys.DISABLED_SLOTS))
             {
                 lockedSlots = NbtBlockUtils.getDisabledSlotsFromNbt(previewData.nbt());
             }

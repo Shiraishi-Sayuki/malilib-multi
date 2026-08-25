@@ -8,7 +8,6 @@ public class Services {
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
 
     // ネットワークヘルパー - パケット送受信用、FabricとNeoForgeで中身が違う
-    public static final INetworkHelper NETWORK = load(INetworkHelper.class);
 
     // サービスを読み込む - 指定クラスの実装を取得、見つからなかったら例外投げる
     public static <T> T load(Class<T> clazz) {

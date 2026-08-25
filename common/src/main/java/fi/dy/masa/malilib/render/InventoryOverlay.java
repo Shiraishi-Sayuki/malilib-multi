@@ -13,8 +13,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -33,7 +31,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.BundleItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.PlayerScreenHandler;
@@ -46,7 +44,6 @@ import net.minecraft.world.World;
 import fi.dy.masa.malilib.MaLiLibReference;
 import fi.dy.masa.malilib.event.RenderEventHandler;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.mixin.item.IMixinContainerComponent;
 import fi.dy.masa.malilib.util.IEntityOwnedInventory;
 import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
@@ -58,40 +55,40 @@ import fi.dy.masa.malilib.util.nbt.NbtKeys;
 
 public class InventoryOverlay
 {
-    public static final Identifier TEXTURE_BREWING_STAND    = Identifier.ofVanilla("textures/gui/container/brewing_stand.png");
-    public static final Identifier TEXTURE_CRAFTER          = Identifier.ofVanilla("textures/gui/container/crafter.png");
-    public static final Identifier TEXTURE_DISPENSER        = Identifier.ofVanilla("textures/gui/container/dispenser.png");
-    public static final Identifier TEXTURE_DOUBLE_CHEST     = Identifier.ofVanilla("textures/gui/container/generic_54.png");
-    public static final Identifier TEXTURE_FURNACE          = Identifier.ofVanilla("textures/gui/container/furnace.png");
-    public static final Identifier TEXTURE_HOPPER           = Identifier.ofVanilla("textures/gui/container/hopper.png");
-    public static final Identifier TEXTURE_PLAYER_INV       = Identifier.ofVanilla("textures/gui/container/inventory.png");
-    public static final Identifier TEXTURE_SINGLE_CHEST     = Identifier.ofVanilla("textures/gui/container/shulker_box.png");
+    public static final Identifier TEXTURE_BREWING_STAND    = new Identifier("minecraft", "textures/gui/container/brewing_stand.png");
+    public static final Identifier TEXTURE_CRAFTER          = new Identifier("minecraft", "textures/gui/container/crafter.png");
+    public static final Identifier TEXTURE_DISPENSER        = new Identifier("minecraft", "textures/gui/container/dispenser.png");
+    public static final Identifier TEXTURE_DOUBLE_CHEST     = new Identifier("minecraft", "textures/gui/container/generic_54.png");
+    public static final Identifier TEXTURE_FURNACE          = new Identifier("minecraft", "textures/gui/container/furnace.png");
+    public static final Identifier TEXTURE_HOPPER           = new Identifier("minecraft", "textures/gui/container/hopper.png");
+    public static final Identifier TEXTURE_PLAYER_INV       = new Identifier("minecraft", "textures/gui/container/inventory.png");
+    public static final Identifier TEXTURE_SINGLE_CHEST     = new Identifier("minecraft", "textures/gui/container/shulker_box.png");
 
-    public static final Identifier TEXTURE_EMPTY_SHIELD     = Identifier.ofVanilla("item/empty_armor_slot_shield");
-    public static final Identifier TEXTURE_LOCKED_SLOT      = Identifier.ofVanilla("container/crafter/disabled_slot");
+    public static final Identifier TEXTURE_EMPTY_SHIELD     = new Identifier("minecraft", "item/empty_armor_slot_shield");
+    public static final Identifier TEXTURE_LOCKED_SLOT      = new Identifier("minecraft", "container/crafter/disabled_slot");
 
     // Additional Empty Slot Textures
-    public static final Identifier TEXTURE_EMPTY_HORSE_ARMOR = Identifier.ofVanilla("container/horse/armor_slot");
-    public static final Identifier TEXTURE_EMPTY_LLAMA_ARMOR = Identifier.ofVanilla("container/horse/llama_armor_slot");
-    public static final Identifier TEXTURE_EMPTY_SADDLE      = Identifier.ofVanilla("container/horse/saddle_slot");
+    public static final Identifier TEXTURE_EMPTY_HORSE_ARMOR = new Identifier("minecraft", "container/horse/armor_slot");
+    public static final Identifier TEXTURE_EMPTY_LLAMA_ARMOR = new Identifier("minecraft", "container/horse/llama_armor_slot");
+    public static final Identifier TEXTURE_EMPTY_SADDLE      = new Identifier("minecraft", "container/horse/saddle_slot");
     // Brewer Slots (1.21.4+)
-    public static final Identifier TEXTURE_EMPTY_BREWER_FUEL = Identifier.ofVanilla("container/slot/brewing_fuel");
-    public static final Identifier TEXTURE_EMPTY_POTION      = Identifier.ofVanilla("container/slot/potion");
+    public static final Identifier TEXTURE_EMPTY_BREWER_FUEL = new Identifier("minecraft", "container/slot/brewing_fuel");
+    public static final Identifier TEXTURE_EMPTY_POTION      = new Identifier("minecraft", "container/slot/potion");
     // Other Misc Empty Slots (1.21.3-)
-    public static final Identifier TEXTURE_EMPTY_SLOT_AMETHYST   = Identifier.ofVanilla("item/empty_slot_amethyst_shard");
-    public static final Identifier TEXTURE_EMPTY_SLOT_AXE        = Identifier.ofVanilla("item/empty_slot_axe");
-    public static final Identifier TEXTURE_EMPTY_SLOT_DIAMOND    = Identifier.ofVanilla("item/empty_slot_diamond");
-    public static final Identifier TEXTURE_EMPTY_SLOT_EMERALD    = Identifier.ofVanilla("item/empty_slot_emerald");
-    public static final Identifier TEXTURE_EMPTY_SLOT_HOE        = Identifier.ofVanilla("item/empty_slot_hoe");
-    public static final Identifier TEXTURE_EMPTY_SLOT_INGOT      = Identifier.ofVanilla("item/empty_slot_ingot");
-    public static final Identifier TEXTURE_EMPTY_SLOT_LAPIS      = Identifier.ofVanilla("item/empty_slot_lapis_lazuli");
-    public static final Identifier TEXTURE_EMPTY_SLOT_PICKAXE    = Identifier.ofVanilla("item/empty_slot_pickaxe");
-    public static final Identifier TEXTURE_EMPTY_SLOT_QUARTZ     = Identifier.ofVanilla("item/empty_slot_quartz");
-    public static final Identifier TEXTURE_EMPTY_SLOT_REDSTONE   = Identifier.ofVanilla("item/empty_slot_redstone_dust");
-    public static final Identifier TEXTURE_EMPTY_SLOT_SHOVEL     = Identifier.ofVanilla("item/empty_slot_shovel");
-    public static final Identifier TEXTURE_EMPTY_SLOT_ARMOR_TRIM = Identifier.ofVanilla("item/empty_slot_smithing_template_armor_trim");
-    public static final Identifier TEXTURE_EMPTY_SLOT_UPGRADE    = Identifier.ofVanilla("item/empty_slot_smithing_template_netherite_upgrade");
-    public static final Identifier TEXTURE_EMPTY_SLOT_SWORD      = Identifier.ofVanilla("item/empty_slot_sword");
+    public static final Identifier TEXTURE_EMPTY_SLOT_AMETHYST   = new Identifier("minecraft", "item/empty_slot_amethyst_shard");
+    public static final Identifier TEXTURE_EMPTY_SLOT_AXE        = new Identifier("minecraft", "item/empty_slot_axe");
+    public static final Identifier TEXTURE_EMPTY_SLOT_DIAMOND    = new Identifier("minecraft", "item/empty_slot_diamond");
+    public static final Identifier TEXTURE_EMPTY_SLOT_EMERALD    = new Identifier("minecraft", "item/empty_slot_emerald");
+    public static final Identifier TEXTURE_EMPTY_SLOT_HOE        = new Identifier("minecraft", "item/empty_slot_hoe");
+    public static final Identifier TEXTURE_EMPTY_SLOT_INGOT      = new Identifier("minecraft", "item/empty_slot_ingot");
+    public static final Identifier TEXTURE_EMPTY_SLOT_LAPIS      = new Identifier("minecraft", "item/empty_slot_lapis_lazuli");
+    public static final Identifier TEXTURE_EMPTY_SLOT_PICKAXE    = new Identifier("minecraft", "item/empty_slot_pickaxe");
+    public static final Identifier TEXTURE_EMPTY_SLOT_QUARTZ     = new Identifier("minecraft", "item/empty_slot_quartz");
+    public static final Identifier TEXTURE_EMPTY_SLOT_REDSTONE   = new Identifier("minecraft", "item/empty_slot_redstone_dust");
+    public static final Identifier TEXTURE_EMPTY_SLOT_SHOVEL     = new Identifier("minecraft", "item/empty_slot_shovel");
+    public static final Identifier TEXTURE_EMPTY_SLOT_ARMOR_TRIM = new Identifier("minecraft", "item/empty_slot_smithing_template_armor_trim");
+    public static final Identifier TEXTURE_EMPTY_SLOT_UPGRADE    = new Identifier("minecraft", "item/empty_slot_smithing_template_netherite_upgrade");
+    public static final Identifier TEXTURE_EMPTY_SLOT_SWORD      = new Identifier("minecraft", "item/empty_slot_sword");
 
     private static final EquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET };
     public static final InventoryProperties INV_PROPS_TEMP = new InventoryProperties();
@@ -99,16 +96,16 @@ public class InventoryOverlay
     private static final Identifier[] EMPTY_SLOT_TEXTURES = new Identifier[]
     {
         // 1.21.3-
-        Identifier.ofVanilla("item/empty_armor_slot_boots"),
-        Identifier.ofVanilla("item/empty_armor_slot_leggings"),
-        Identifier.ofVanilla("item/empty_armor_slot_chestplate"),
-        Identifier.ofVanilla("item/empty_armor_slot_helmet")
+        new Identifier("minecraft", "item/empty_armor_slot_boots"),
+        new Identifier("minecraft", "item/empty_armor_slot_leggings"),
+        new Identifier("minecraft", "item/empty_armor_slot_chestplate"),
+        new Identifier("minecraft", "item/empty_armor_slot_helmet")
         // 1.21.4+
 /*
-        Identifier.ofVanilla("container/slot/boots"),
-        Identifier.ofVanilla("container/slot/leggings"),
-        Identifier.ofVanilla("container/slot/chestplate"),
-        Identifier.ofVanilla("container/slot/helmet")
+        new Identifier("minecraft", "container/slot/boots"),
+        new Identifier("minecraft", "container/slot/leggings"),
+        new Identifier("minecraft", "container/slot/chestplate"),
+        new Identifier("minecraft", "container/slot/helmet")
  */
     };
 
@@ -426,10 +423,6 @@ public class InventoryOverlay
         {
             return InventoryRenderType.BREWING_STAND;
         }
-        else if (inv instanceof CrafterBlockEntity)
-        {
-            return InventoryRenderType.CRAFTER;
-        }
         else if (inv instanceof DispenserBlockEntity)
         {
             // this includes the Dropper as a subclass
@@ -472,15 +465,18 @@ public class InventoryOverlay
     public static InventoryRenderType getInventoryType(ItemStack stack)
     {
         Item item = stack.getItem();
-        ContainerComponent container = stack.getOrDefault(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT);
 
         if (item instanceof BlockItem)
         {
             Block block = ((BlockItem) item).getBlock();
 
+            // 1.20.1ではコンテナ内容はNBT("Items")に入るのでそこから個数を取る
+            final int size;
+            net.minecraft.nbt.NbtCompound nbt = stack.getSubNbt("Items");
+
             if (block instanceof ShulkerBoxBlock || block instanceof ChestBlock || block instanceof BarrelBlock)
             {
-                final int size = ((IMixinContainerComponent) (Object) container).malilib_getStacks().size();
+                size = nbt != null ? nbt.getList("Items").size() : 27;
 
                 // For "Double Inventory" Barrels, etc.
                 if (size >= 0 && size <= 27)
@@ -1141,7 +1137,7 @@ public class InventoryOverlay
      */
     public static void renderStackToolTip(int x, int y, ItemStack stack, MinecraftClient mc, DrawContext drawContext)
     {
-        List<Text> list = stack.getTooltip(Item.TooltipContext.create(mc.world), mc.player, mc.options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC);
+        List<Text> list = stack.getTooltip(mc.player, mc.options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC);
         List<String> lines = new ArrayList<>();
 
         if (MaLiLibReference.DEBUG_MODE)
@@ -1179,7 +1175,8 @@ public class InventoryOverlay
             // Not sure why getBestWorld() is required here,
             // it's also required when connected to a server;
             // or else not be able to see Enchantment tooltips. (>.>)
-            List<Text> toolTips = stack.getTooltip(Item.TooltipContext.create(WorldUtils.getBestWorld(mc)), mc.player, mc.options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC);
+            // 1.20.1ではTooltipContext型が違うのでPlayerEntity渡しに戻す
+            List<Text> toolTips = stack.getTooltip(WorldUtils.getBestWorld(mc) instanceof net.minecraft.entity.player.PlayerEntity p ? p : mc.player, mc.options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC);
             if (MaLiLibReference.DEBUG_MODE)
             {
                 dumpStack(stack, toolTips);

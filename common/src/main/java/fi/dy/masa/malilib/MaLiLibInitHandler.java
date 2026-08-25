@@ -12,7 +12,6 @@ import fi.dy.masa.malilib.interfaces.IInitializationHandler;
 import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.malilib.test.TestCommand;
 import fi.dy.masa.malilib.test.TestInputHandler;
-import fi.dy.masa.malilib.test.TestRenderHandler;
 
 public class MaLiLibInitHandler implements IInitializationHandler
 {
@@ -27,9 +26,6 @@ public class MaLiLibInitHandler implements IInitializationHandler
         if (MaLiLibReference.DEBUG_MODE)
         {
             InputEventHandler.getKeybindManager().registerKeybindProvider(TestInputHandler.getInstance());
-            IRenderer renderer = new TestRenderHandler();
-            RenderEventHandler.getInstance().registerGameOverlayRenderer(renderer);
-            RenderEventHandler.getInstance().registerTooltipLastRenderer(renderer);
             //RenderEventHandler.getInstance().registerWorldPreWeatherRenderer(renderer);
             RenderEventHandler.getInstance().registerWorldLastRenderer(renderer);
 

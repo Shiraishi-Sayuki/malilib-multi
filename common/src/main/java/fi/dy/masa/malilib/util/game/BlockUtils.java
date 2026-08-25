@@ -10,8 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.CrafterBlockEntity;
-import net.minecraft.block.enums.Orientation;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -375,27 +373,6 @@ public class BlockUtils
     }
 
     @Nullable
-    public static Orientation getPropertyOrientationValue(BlockState state)
-    {
-        return state.contains(Properties.ORIENTATION) ? state.get(Properties.ORIENTATION) : null;
-    }
-
-    @Nullable
-    public static Direction getPropertyOrientationFacing(BlockState state)
-    {
-        Orientation o = getPropertyOrientationValue(state);
-
-        return o != null ? o.getFacing() : null;
-    }
-
-    @Nullable
-    public static Direction getPropertyOrientationRotation(BlockState state)
-    {
-        Orientation o = getPropertyOrientationValue(state);
-
-        return o != null ? o.getRotation() : null;
-    }
-
     public static boolean isFacingValidForDirection(ItemStack stack, Direction facing)
     {
         Item item = stack.getItem();
@@ -427,70 +404,12 @@ public class BlockUtils
         return -1;
     }
 
-    public static boolean isFacingValidForOrientation(ItemStack stack, Direction facing)
-    {
-        Item item = stack.getItem();
-
-        if (stack.isEmpty() == false && item instanceof BlockItem)
-        {
-            Block block = ((BlockItem) item).getBlock();
-            BlockState state = block.getDefaultState();
-
-            return state.contains(Properties.ORIENTATION);
-        }
-
-        return false;
-    }
-
-    public static int getOrientationFacingIndex(ItemStack stack, Direction facing)
-    {
-        if (stack.getItem() instanceof BlockItem blockItem)
-        {
-            BlockState defaultState = blockItem.getBlock().getDefaultState();
-
-            if (defaultState.contains(Properties.ORIENTATION))
-            {
-                List<Orientation> list = Arrays.stream(Orientation.values()).toList();
-
-                for (int i = 0; i < list.size(); i++)
-                {
-                    Orientation o = list.get(i);
-
-                    if (o.getFacing().equals(facing))
-                    {
-                        return i;
-                    }
-                }
-            }
-        }
-
-        return -1;
-    }
-
     /**
      * Get a Crafter's "locked slots" from the Block Entity by iterating all 9 slots.
      *
      * @param ce
      * @return
      */
-    public static Set<Integer> getDisabledSlots(CrafterBlockEntity ce)
-    {
-        Set<Integer> list = new HashSet<>();
-
-        if (ce != null)
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                if (ce.isSlotDisabled(i))
-                {
-                    list.add(i);
-                }
-            }
-        }
-
-        return list;
-    }
-
     /**
      * Write a Block Entity's Data to an ItemStack (Removed from Vanilla, why?)
      *
@@ -500,9 +419,10 @@ public class BlockUtils
      */
     public static void setStackNbt(@Nonnull ItemStack stack, @Nonnull BlockEntity be, @Nonnull DynamicRegistryManager registry)
     {
-        NbtCompound nbt = be.createComponentlessNbt(registry);
-        BlockItem.setBlockEntityData(stack, be.getType(), nbt);
-        stack.applyComponentsFrom(be.createComponentMap());
+        // 1.20.1ではBlockEntityのNBTを直接ItemStackに書き込む
+        NbtCompound nbt = new NbtCompound();
+        be.writeNbt(nbt);
+        stack.setSubNbt("BlockEntityTag", nbt);
     }
 
     /**

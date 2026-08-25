@@ -56,7 +56,7 @@ public abstract class GuiBase extends Screen implements IMessageConsumer, IStrin
     protected static final String BUTTON_LABEL_ADD = TXT_DARK_GREEN + "+" + TXT_RST;
     protected static final String BUTTON_LABEL_REMOVE = TXT_DARK_RED + "-" + TXT_RST;
 
-    public static final Identifier BG_TEXTURE = Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
+    public static final Identifier BG_TEXTURE = new Identifier("minecraft", "textures/gui/inworld_menu_list_background.png");
 
     public static final int COLOR_WHITE          = 0xFFFFFFFF;
     public static final int TOOLTIP_BACKGROUND   = 0xB0000000;
@@ -247,7 +247,8 @@ public abstract class GuiBase extends Screen implements IMessageConsumer, IStrin
             }
         }
 
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        // 1.20.1ではscroll引数が1つ(horizontal+verticalを合算)
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount + verticalAmount);
     }
 
     @Override

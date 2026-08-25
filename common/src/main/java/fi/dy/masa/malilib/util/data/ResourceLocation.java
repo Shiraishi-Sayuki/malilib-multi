@@ -7,8 +7,6 @@ import io.netty.buffer.ByteBuf;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.Identifier;
 
 /**
@@ -23,7 +21,6 @@ public class ResourceLocation
                     Identifier.CODEC.fieldOf("id").forGetter(get -> get.id)
             ).apply(resourceLocationInstance, ResourceLocation::new)
     );
-    public static final PacketCodec<ByteBuf, ResourceLocation> PACKET_CODEC = PacketCodecs.STRING.xmap(ResourceLocation::of, ResourceLocation::toString);
     private final Identifier id;
 
     public ResourceLocation(String str)

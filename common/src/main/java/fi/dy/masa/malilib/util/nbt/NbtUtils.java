@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Function;
+
+import net.minecraft.nbt.NbtTagSizeTracker;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -402,7 +404,7 @@ public class NbtUtils
 
 	@Deprecated(forRemoval = true)
 	@Nullable
-	public static NbtCompound readNbtFromFile(@Nonnull File file, NbtSizeTracker tracker)
+	public static NbtCompound readNbtFromFile(@Nonnull File file, NbtTagSizeTracker tracker)
 	{
 		if (file.exists() == false || file.canRead() == false)
 		{
@@ -460,7 +462,7 @@ public class NbtUtils
 	}
 
 	@Nullable
-	public static NbtCompound readNbtFromFileAsPath(@Nonnull Path file, NbtSizeTracker tracker)
+	public static NbtCompound readNbtFromFileAsPath(@Nonnull Path file, NbtTagSizeTracker tracker)
 	{
 		if (!Files.exists(file) || !Files.isReadable(file))
 		{

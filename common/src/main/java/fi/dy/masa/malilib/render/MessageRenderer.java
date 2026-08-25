@@ -23,7 +23,7 @@ public class MessageRenderer
     private boolean expandUp;
     private float zLevel;
 
-    protected static final Identifier BG_TEXTURE = Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
+    protected static final Identifier BG_TEXTURE = new Identifier("minecraft", "textures/gui/inworld_menu_list_background.png");
 
     public MessageRenderer(int bgColor, int borderColor)
     {

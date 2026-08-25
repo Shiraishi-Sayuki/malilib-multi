@@ -753,38 +753,6 @@ public class NbtEntityUtils
         return null;
     }
 
-    /**
-     * Get a Wolves' Variant and Collar Color from NBT.
-     *
-     * @param nbt ()
-     * @return ()
-     */
-    public static Pair<RegistryKey<WolfVariant>, DyeColor> getWolfVariantFromNbt(@Nonnull NbtCompound nbt)
-    {
-        RegistryKey<WolfVariant> variantKey = null;
-        DyeColor collar = null;
-
-        if (nbt.contains(NbtKeys.VARIANT, Constants.NBT.TAG_STRING))
-        {
-            variantKey = RegistryKey.of(RegistryKeys.WOLF_VARIANT, Identifier.tryParse(nbt.getString(NbtKeys.VARIANT)));
-        }
-        if (nbt.contains(NbtKeys.COLLAR, Constants.NBT.TAG_ANY_NUMERIC))
-        {
-            collar = DyeColor.byId(nbt.getInt(NbtKeys.COLLAR));
-        }
-
-        if (variantKey == null)
-        {
-            variantKey = WolfVariants.DEFAULT;
-        }
-
-        if (collar == null)
-        {
-            collar = DyeColor.RED;
-        }
-
-        return Pair.of(variantKey, collar);
-    }
 
     /**
      * Get a Sheep's Color from NBT.

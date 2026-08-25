@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.SignText;
-import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -138,23 +137,6 @@ public class NbtBlockUtils
      * @param nbt ()
      * @return ()
      */
-    public static Pair<List<BeehiveBlockEntity.BeeData>, BlockPos> getBeesDataFromNbt(@Nonnull NbtCompound nbt)
-    {
-        List<BeehiveBlockEntity.BeeData> bees = new ArrayList<>();
-        BlockPos flower = BlockPos.ORIGIN;
-
-        if (nbt.contains(NbtKeys.BEES))
-        {
-            BeehiveBlockEntity.BeeData.LIST_CODEC.parse(NbtOps.INSTANCE, nbt.get(NbtKeys.BEES)).resultOrPartial().ifPresent(bees::addAll);
-        }
-        if (nbt.contains(NbtKeys.FLOWER, Constants.NBT.TAG_INT_ARRAY))
-        {
-            flower = NbtUtils.readBlockPosFromIntArray(nbt, NbtKeys.FLOWER);
-        }
-
-        return Pair.of(bees, flower);
-    }
-
     /**
      * Get the Skulk Sensor Vibration / Listener data from NBT.
      *
@@ -261,34 +243,6 @@ public class NbtBlockUtils
      * @param registry ()
      * @return ()
      */
-    public static Pair<ProfileComponent, Pair<Identifier, Text>> getSkullDataFromNbt(@Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registry)
-    {
-        AtomicReference<ProfileComponent> profile = new AtomicReference<>(null);
-        Identifier note = null;
-        Text name = Text.empty();
-
-        if (nbt.contains(NbtKeys.NOTE, Constants.NBT.TAG_STRING))
-        {
-            note = Identifier.tryParse(nbt.getString(NbtKeys.NOTE));
-        }
-        if (nbt.contains(NbtKeys.SKULL_NAME, Constants.NBT.TAG_STRING))
-        {
-            String str = nbt.getString(NbtKeys.SKULL_NAME);
-
-            try
-            {
-                name = Text.Serialization.fromJson(str, registry);
-            }
-            catch (Exception ignored) {}
-        }
-        if (nbt.contains(NbtKeys.PROFILE))
-        {
-            ProfileComponent.CODEC.parse(NbtOps.INSTANCE, nbt.get(NbtKeys.PROFILE)).resultOrPartial().ifPresent(profile::set);
-        }
-
-        return Pair.of(profile.get(), Pair.of(note, name));
-    }
-
     /**
      * Get a Furnaces 'Used Recipes' from NBT.
      *

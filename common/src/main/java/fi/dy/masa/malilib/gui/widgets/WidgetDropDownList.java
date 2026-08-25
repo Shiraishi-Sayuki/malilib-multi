@@ -261,8 +261,8 @@ public class WidgetDropDownList<T> extends WidgetBase
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        Matrix4fStack matrixStack = RenderSystem.getModelViewStack();
-        matrixStack.pushMatrix();
+        net.minecraft.client.util.math.MatrixStack matrixStack = RenderSystem.getModelViewStack();
+        matrixStack.push();
         matrixStack.translate(0, 0, 10);
         MatrixStack matrixStackIn = drawContext.getMatrices();
         matrixStackIn.push();
@@ -338,7 +338,7 @@ public class WidgetDropDownList<T> extends WidgetBase
             RenderUtils.drawTexturedRect(this.x + this.width - 16, this.y + 2, i.getU() + i.getWidth(), i.getV(), i.getWidth(), i.getHeight());
         }
 
-        matrixStack.popMatrix();
+        matrixStack.pop();
         matrixStackIn.pop();
     }
 
@@ -349,7 +349,7 @@ public class WidgetDropDownList<T> extends WidgetBase
         if (this.isOpen)
         {
             this.render(mouseX, mouseY, selected, drawContext);
-            RenderUtils.forceDraw(drawContext);
+            drawContext.draw(); // 1.20.1: DrawContext#draw()で即時描画
         }
     }
 

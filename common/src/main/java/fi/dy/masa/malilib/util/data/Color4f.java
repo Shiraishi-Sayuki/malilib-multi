@@ -5,14 +5,11 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.netty.buffer.ByteBuf;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.math.ColorHelper;
 
 import fi.dy.masa.malilib.util.MathUtils;
@@ -39,28 +36,6 @@ public class Color4f
     );
     public static final Codec<Color4f> CODEC = RGBA_CODEC;
     public static final Codec<List<Color4f>> LIST_CODEC = CODEC.listOf();
-    public static final PacketCodec<ByteBuf, Color4f> PACKET_CODEC = new PacketCodec<>()
-    {
-        @Override
-        public void encode(ByteBuf buf, Color4f value)
-        {
-            PacketCodecs.FLOAT.encode(buf, value.r);
-            PacketCodecs.FLOAT.encode(buf, value.g);
-            PacketCodecs.FLOAT.encode(buf, value.b);
-            PacketCodecs.FLOAT.encode(buf, value.a);
-        }
-
-        @Override
-        public Color4f decode(ByteBuf buf)
-        {
-            return new Color4f(
-                    PacketCodecs.FLOAT.decode(buf),
-                    PacketCodecs.FLOAT.decode(buf),
-                    PacketCodecs.FLOAT.decode(buf),
-                    PacketCodecs.FLOAT.decode(buf)
-            );
-        }
-    };
     public static final Pattern HEX_8 = Pattern.compile("(?:0x|#)([a-fA-F0-9]{8})");
     public static final Pattern HEX_6 = Pattern.compile("(?:0x|#)([a-fA-F0-9]{6})");
     public static final Pattern HEX_4 = Pattern.compile("(?:0x|#)([a-fA-F0-9]{4})");
