@@ -1,7 +1,9 @@
 package com.sayuki.malilib.forge;
 
 import com.sayuki.malilib.platform.IPlatformHelper;
+import java.nio.file.Path;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 // Forge用プラットフォーム実装 - ModListに処理を投げるだけの薄いラッパー、失敗しても"?"とかfalseで落とさない
 public class ForgePlatformHelper implements IPlatformHelper {
@@ -28,5 +30,24 @@ public class ForgePlatformHelper implements IPlatformHelper {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+    @Override
+    public boolean isDevelopmentEnvironment() {
+        try {
+            return net.minecraftforge.fml.loading.FMLLoader.isProduction() == false;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    @Override
+    public Path getGameDir() {
+        return FMLPaths.GAMEDIR.get();
+    }
+
+    @Override
+    public Path getConfigDir() {
+        return FMLPaths.CONFIGDIR.get();
     }
 }

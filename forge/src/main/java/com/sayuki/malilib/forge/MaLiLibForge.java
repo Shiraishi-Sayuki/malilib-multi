@@ -1,6 +1,6 @@
 package com.sayuki.malilib.forge;
 
-import fi.dy.masa.malilib.MaLiLib;
+import com.sayuki.malilib.MaLiLibCommon;
 import fi.dy.masa.malilib.MaLiLibConfigGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraftforge.client.ConfigScreenHandler;
@@ -27,7 +27,7 @@ public class MaLiLibForge {
                     () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (remote, isLocal) -> true));
 
             // 共通初期化 - Fabric側と同じ流れでmasaのコードを呼ぶ
-            MaLiLib.onInitialize();
+            MaLiLibCommon.init();
 
             // 設定画面登録 - ModMenuの代わりにForgeの拡張ポイントで出す
             modContainer.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
