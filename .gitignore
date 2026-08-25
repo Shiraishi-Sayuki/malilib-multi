@@ -2,6 +2,7 @@
 .settings
 bin/
 build/
+**/build/
 eclipse/
 logs/
 .classpath
@@ -10,5 +11,14 @@ build.number
 Task
 .idea/
 run/
+**/run/
 libs/
+**/libs/
+CommonMaven/
+fabric/run/
+neoforge/run/
+common/run/
 /src/main/generated/.cache/
+**/generated/
+*.log
+out/
