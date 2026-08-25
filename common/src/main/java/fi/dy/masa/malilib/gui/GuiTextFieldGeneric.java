@@ -51,6 +51,24 @@ public class GuiTextFieldGeneric extends TextFieldWidget
         return this.x;
     }
 
+    // カーソル位置取得 - かつてあったメソッド、litematica 0.15系など古いMODが使うので復活させておく
+    public int getCursorPosition()
+    {
+        return this.getCursor();
+    }
+
+    // カーソル位置設定 - 同じく復活させたメソッド
+    public void setCursorPosition(int cursorPosition)
+    {
+        this.setCursor(cursorPosition);
+    }
+
+    // カーソルを末尾へ - 同じく復活させたメソッド
+    public void setCursorPositionEnd()
+    {
+        this.setCursor(this.getText().length());
+    }
+
     public int getY()
     {
         return this.y;
