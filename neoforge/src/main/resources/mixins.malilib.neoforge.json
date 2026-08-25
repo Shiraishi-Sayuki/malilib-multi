@@ -1,9 +1,0 @@
-{
-    "required": true,
-    "package": "fi.dy.masa.malilib.mixin",
-    "compatibilityLevel": "JAVA_21",
-    "minVersion": "0.8",
-    "refmap": "malilib.refmap.json",
-    "client": [],
-    "mixins": []
-}

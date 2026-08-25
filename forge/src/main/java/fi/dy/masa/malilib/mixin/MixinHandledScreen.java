@@ -1,6 +1,6 @@
-package fi.dy.masa.malilib.mixin.screen;
+package fi.dy.masa.malilib.mixin;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +13,7 @@ import net.minecraft.screen.slot.Slot;
 
 import fi.dy.masa.malilib.event.RenderEventHandler;
 
-// NeoForge版 - TAIL注入でマッピング差異(NeoForgeの6引数renderTooltipパッチ)を避ける
+// Forge版 - ForgeがrenderTooltipを6引数(ItemStack付き)呼び出しにパッチするためTAIL注入でマッピング差異を避ける
 @Mixin(HandledScreen.class)
 public abstract class MixinHandledScreen
 {

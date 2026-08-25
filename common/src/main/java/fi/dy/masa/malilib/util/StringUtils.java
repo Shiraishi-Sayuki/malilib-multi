@@ -2,111 +2,28 @@ package fi.dy.masa.malilib.util;
 
 import java.io.File;
 import java.net.SocketAddress;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import org.jetbrains.annotations.NotNull;
-
-import com.mojang.serialization.JsonOps;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.ClickEvent;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextCodecs;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-
-import fi.dy.masa.malilib.MaLiLib;
 import fi.dy.masa.malilib.MaLiLibConfigs;
-import fi.dy.masa.malilib.gui.LeftRight;
-import fi.dy.masa.malilib.util.time.DurationFormat;
 
-/**
- * File has been merged with Post-Rewrite StringUtils
- */
 public class StringUtils
 {
-    @Nullable
-    public static Identifier identifier(String fullPath)
-    {
-        try
-        {
-            return Identifier.of(fullPath);
-        }
-        catch (Exception e)
-        {
-            MaLiLib.LOGGER.error("Exception while trying to create a ResourceLocation: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    @Nullable
-    public static Identifier identifier(String nameSpace, String path)
-    {
-        try
-        {
-            return Identifier.of(nameSpace, path);
-        }
-        catch (Exception e)
-        {
-            MaLiLib.LOGGER.error("Exception while trying to create a ResourceLocation: {}", e.getMessage());
-            return null;
-        }
-    }
-
     public static String getModVersionString(String modId)
     {
-        // プラットフォームヘルパー経由でバージョン取得 - FabricもNeoForgeも同じ呼び出しでいける
-        try {
-            return com.sayuki.malilib.platform.Services.PLATFORM.getModVersion(modId);
-        } catch (Exception e) {
-            return "?";
-        }
-    }
-
-    /**
-     * Removes the string <b>extension</b> from the end of <b>str</b>,
-     * if <b>str</b> ends in <b>extension</b>
-     * @param str ()
-     * @param extension ()
-     * @return ()
-     */
-    public static String stripExtensionIfMatches(String str, String extension)
-    {
-        if (str.endsWith(extension) && str.length() > extension.length())
-        {
-            return str.substring(0, str.length() - extension.length());
-        }
-
-        return str;
+        return com.sayuki.malilib.platform.Services.PLATFORM.getModVersion(modId);
     }
 
     /**
      * Parses the given string as a hexadecimal value, if it begins with '#' or '0x'.
      * Otherwise tries to parse it as a regular base 10 integer.
-     * @param colorStr ()
-     * @param defaultColor ()
-     * @return ()
+     * @param colorStr
+     * @param defaultColor
+     * @return
      */
     public static int getColor(String colorStr, int defaultColor)
     {
@@ -125,8 +42,8 @@ public class StringUtils
 
     /**
      * Splits the given camel-case string into parts separated by a space
-     * @param str ()
-     * @return ()
+     * @param str
+     * @return
      */
     // https://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
     public static String splitCamelCase(String str)
@@ -148,106 +65,24 @@ public class StringUtils
         return str;
     }
 
-    /**
-     * Returns true if all the characters from needle are found in haystack,
-     * and they are found in the same order. There can be an arbitrary number of characters between
-     * each found character in the haystack, as long as all of them are found,
-     * and such that for example the third character of needle is found after the second character's
-     * first valid match in haystack.
-     */
-    public static boolean containsOrderedCharacters(String needle, String haystack)
+    public static void sendOpenFileChatMessage(net.minecraft.entity.Entity sender, String messageKey, File file)
     {
-        int needleLength = needle.length();
-        int startIndex = 0;
-
-        for (int i = 0; i < needleLength; ++i)
-        {
-            startIndex = haystack.indexOf(needle.charAt(i), startIndex);
-
-            if (startIndex == -1)
-            {
-                return false;
-            }
-
-            ++startIndex;
-        }
-
-        return true;
-    }
-
-    public static void sendOpenFileChatMessage(PlayerEntity sender, String messageKey, File file)
-    {
-        Text name = Text.literal(file.getName())
+        net.minecraft.text.Text name = Text.literal(file.getName())
             .formatted(net.minecraft.util.Formatting.UNDERLINE)
             .styled((style) -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
 
-        sender.sendMessage(Text.translatable(messageKey, name), false);
-    }
-
-    public static void sendOpenFileChatMessage(PlayerEntity sender, String messageKey, Path file)
-    {
-        Text name = Text.literal(file.getFileName().toString())
-                        .formatted(net.minecraft.util.Formatting.UNDERLINE)
-                        .styled((style) -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.toAbsolutePath().toString())));
-
-        sender.sendMessage(Text.translatable(messageKey, name), false);
-    }
-
-    public static int getMaxStringRenderWidth(String... strings)
-    {
-        return getMaxStringRenderWidth(Arrays.asList(strings));
-    }
-
-    public static int getMaxStringRenderWidth(List<String> lines)
-    {
-        return getMaxStringRenderWidth(lines, (l) -> l);
-    }
-
-    public static int getMaxStringRenderWidth(Function<String, String> translator, String... strings)
-    {
-        return getMaxStringRenderWidth(Arrays.asList(strings), translator);
-    }
-
-    public static int getMaxStringRenderWidth(List<String> lines, Function<String, String> translator)
-    {
-        int width = 0;
-
-        for (String line : lines)
-        {
-            width = Math.max(width, getStringWidth(translator.apply(line)));
-        }
-
-        return width;
-    }
-
-    public static <T> int getMaxStringRenderWidthOfObjects(List<T> list, Function<T, String> translator)
-    {
-        int width = 0;
-
-        for (T item : list)
-        {
-            width = Math.max(width, getStringWidth(translator.apply(item)));
-        }
-
-        return width;
-    }
-
-    public static void addTranslatedLines(List<String> linesOut, String translationKey)
-    {
-        String[] parts = translate(translationKey).split("\\\\n|\\n");
-        Collections.addAll(linesOut, parts);
+        sender.sendMessage(Text.translatable(messageKey, name));
     }
 
     /**
      * Splits the given string into lines up to maxLineLength long
-     * @param linesOut ()
-     * @param textIn ()
-     * @param maxLineLength ()
+     * @param linesOut
+     * @param textIn
+     * @param maxLineLength
      */
     public static void splitTextToLines(List<String> linesOut, String textIn, int maxLineLength)
     {
-        String[] lines = textIn.split("\\\\n|\\n");
-        @Nullable String activeColor = null;
+        String[] lines = textIn.split("\\\\n");
 
         for (String line : lines)
         {
@@ -277,15 +112,6 @@ public class StringUtils
                         for (int i = 0; i < chars; ++i)
                         {
                             String c = str.substring(i, i + 1);
-
-                            if (c.equals("§") && i < (chars - 1))
-                            {
-                                activeColor = str.substring(i, i + 2);
-                                sb.append(activeColor);
-                                ++i;
-                                continue;
-                            }
-
                             lineWidth += getStringWidth(c);
 
                             if (lineWidth > maxLineLength)
@@ -293,11 +119,6 @@ public class StringUtils
                                 linesOut.add(sb.toString());
                                 sb = new StringBuilder(256);
                                 lineWidth = 0;
-
-                                if (activeColor != null)
-                                {
-                                    sb.append(activeColor);
-                                }
                             }
 
                             sb.append(c);
@@ -375,83 +196,7 @@ public class StringUtils
         return sb.toString();
     }
 
-    public static String getDisplayStringForList(List<String> list, final int maxWidth,
-                                                 String quote, String prefix, String suffix)
-    {
-        StringBuilder sb = new StringBuilder(128);
-        sb.append(prefix);
-
-        String entrySep = ", ";
-        String dots = " ...";
-        final int listSize = list.size();
-        final int widthQuotes = getStringWidth(quote) * 2;
-        final int widthSep = getStringWidth(entrySep);
-        final int widthDots = getStringWidth(dots);
-        final int widthNextMin = widthSep + widthDots;
-        int width = getStringWidth(prefix) + getStringWidth(suffix);
-
-        if (listSize > 0)
-        {
-            for (int listIndex = 0; listIndex < listSize && width < maxWidth; ++listIndex)
-            {
-                if (listIndex > 0)
-                {
-                    sb.append(entrySep);
-                    width += widthSep;
-                }
-
-                String str = list.get(listIndex);
-                final int len = getStringWidth(str) + widthQuotes;
-                int widthNext = listIndex < listSize - 1 ? widthNextMin : 0;
-
-                if ((width + len + widthNext) <= maxWidth)
-                {
-                    sb.append(quote).append(str).append(quote);
-                    width += len;
-                }
-                else
-                {
-                    if ((width + getStringWidth(str.substring(0, 1)) + widthDots) <= maxWidth)
-                    {
-                        sb.append(quote);
-                        width += widthQuotes;
-
-                        for (int i = 0; i < str.length(); ++i)
-                        {
-                            String c = str.substring(i, i + 1);
-                            final int charWidth = getStringWidth(c);
-
-                            if ((width + charWidth + widthDots) <= maxWidth)
-                            {
-                                sb.append(c);
-                                width += charWidth;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-
-                        sb.append(quote);
-                    }
-
-                    sb.append(dots);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            sb.append("<empty>");
-        }
-
-        sb.append(suffix);
-
-        return sb.toString();
-    }
-
-    public static String getClampedDisplayStringRenderlen(List<String> list, final int maxWidth,
-                                                          String prefix, String suffix)
+    public static String getClampedDisplayStringRenderlen(List<String> list, final int maxWidth, String prefix, String suffix)
     {
         StringBuilder sb = new StringBuilder(128);
         sb.append(prefix);
@@ -515,100 +260,26 @@ public class StringUtils
         return sb.toString();
     }
 
-    /**
-     * Shrinks the given string until it can fit into the provided maximum width,
-     * and adds the provided clamping indicator to indicate that the string is longer than what is shown.
-     * @param text ()
-     * @param maxWidth ()
-     * @param side the side from which to shrink the string
-     * @param indicator the appended shrinkage indicator, for example "..."
-     * @return ()
-     */
-    public static String clampTextToRenderLength(String text, final int maxWidth, LeftRight side, String indicator)
-    {
-        // The entire string fits, just return it as-is
-        if (getStringWidth(text) <= maxWidth)
-        {
-            return text;
-        }
-
-        StringBuilder sb = new StringBuilder(128);
-
-        final int indicatorWidth = getStringWidth(indicator);
-        final int stringLen = text.length();
-        int usedWidth = indicatorWidth;
-        int index = 0;
-        int lastIndex = stringLen - 1;
-        int indexIncrement = 1;
-
-        // Shrink from the left, so append/build from the right
-        if (side == LeftRight.LEFT)
-        {
-            index = stringLen - 1;
-            lastIndex = 0;
-            indexIncrement = -1;
-        }
-
-        while (usedWidth < maxWidth)
-        {
-            String chr = text.substring(index, index + 1);
-            int charWidth = getStringWidth(chr);
-
-            if (usedWidth + charWidth > maxWidth)
-            {
-                break;
-            }
-
-            sb.append(chr);
-            usedWidth += charWidth;
-
-            if (index == lastIndex)
-            {
-                break;
-            }
-
-            index += indexIncrement;
-        }
-
-        if (side == LeftRight.LEFT)
-        {
-            return indicator + sb.reverse();
-        }
-
-        sb.append(indicator);
-
-        return sb.toString();
-    }
-
-    @Nullable
-    public static String getWorldOrServerNameOrDefault(String defaultStr)
-    {
-        String name = getWorldOrServerName();
-        return name != null ? name : defaultStr;
-    }
-
     @Nullable
     public static String getWorldOrServerName()
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
 
         if (mc.isIntegratedServerRunning())
         {
-            IntegratedServer server = mc.getServer();
+            net.minecraft.server.integrated.IntegratedServer server = mc.getServer();
 
             if (server != null)
             {
                 // This used to be just MinecraftServer::getLevelName().
                 // Getting the name would now require an @Accessor for MinecraftServer.field_23784
                 String name = server.getSaveProperties().getLevelName();
-                // this was breaking non-US Locale file names
-                //return FileUtils.generateSimpleSafeFileName(name);
-                return FileNameUtils.generateSafeFileName(name);
+                return FileUtils.generateSimpleSafeFileName(name); 
             }
         }
         else
         {
-            if (mc.getCurrentServerEntry() != null && mc.getCurrentServerEntry().isRealm())
+            if (mc.isConnectedToRealms())
             {
                 if (MaLiLibConfigs.Generic.REALMS_COMMON_CONFIG.getBooleanValue())
                 {
@@ -616,8 +287,8 @@ public class StringUtils
                 }
                 else
                 {
-                    ClientPlayNetworkHandler handler = mc.getNetworkHandler();
-                    ClientConnection connection = handler != null ? handler.getConnection() : null;
+                    net.minecraft.client.network.ClientPlayNetworkHandler handler = mc.getNetworkHandler();
+                    net.minecraft.network.ClientConnection connection = handler != null ? handler.getConnection() : null;
 
                     if (connection != null)
                     {
@@ -626,7 +297,7 @@ public class StringUtils
                 }
             }
 
-            ServerInfo server = mc.getCurrentServerEntry();
+            net.minecraft.client.network.ServerInfo server = mc.getCurrentServerEntry();
 
             if (server != null)
             {
@@ -641,12 +312,12 @@ public class StringUtils
 
     /**
      * Returns a file name based on the current server or world name.
-     * If <b>globalData</b> is false, the name will also include the current dimension ID.
-     * @param globalData ()
-     * @param prefix ()
-     * @param suffix ()
+     * If <b>globalData</b> is false, the the name will also include the current dimension ID.
+     * @param globalData
+     * @param prefix
+     * @param suffix
      * @param defaultName the default file name, if getting a per-server/world name fails
-     * @return ()
+     * @return
      */
     public static String getStorageFileName(boolean globalData, String prefix, String suffix, String defaultName)
     {
@@ -658,22 +329,16 @@ public class StringUtils
             {
                 return prefix + name + suffix;
             }
-            else
-            {
-                World world = MinecraftClient.getInstance().world;
 
-                if (world != null)
-                {
-                    return prefix + name + "_dim_" + WorldUtils.getDimensionId(world) + suffix;
-                }
+            net.minecraft.world.World world = net.minecraft.client.MinecraftClient.getInstance().world;
+
+            if (world != null)
+            {
+                return prefix + name + "_dim_" + WorldUtils.getDimensionId(world) + suffix;
             }
         }
-        else
-        {
-            name = prefix + defaultName + suffix;
-        }
 
-        return FileNameUtils.generateSafeFileName(name) + suffix;
+        return prefix + defaultName + suffix;
     }
 
     public static String stringifyAddress(SocketAddress address)
@@ -686,44 +351,6 @@ public class StringUtils
         }
 
         return str.replace(':', '_');
-    }
-
-    public static String getPrettyFileSizeText(long fileSize, int decimalPlaces)
-    {
-        String[] units = {"B", "KiB", "MiB", "GiB", "TiB"};
-        String unitStr = "";
-        double size = fileSize;
-
-        for (String unit : units)
-        {
-            unitStr = unit;
-
-            if (size < 1024.0)
-            {
-                break;
-            }
-
-            size /= 1024.0;
-        }
-
-        String fmt = "%." + decimalPlaces + "f %s";
-        return String.format(fmt, size, unitStr);
-    }
-
-    public static List<String> translateAndLineSplit(String translationKey, Object... args)
-    {
-        String translated = translate(translationKey, args);
-        return Arrays.asList(translated.split("\\\\n|\\n"));
-    }
-
-    public static void translateAndLineSplit(Consumer<String> lineConsumer, String translationKey, Object... args)
-    {
-        String translated = translate(translationKey, args);
-
-        for (String line : translated.split("\\\\n|\\n"))
-        {
-            lineConsumer.accept(line);
-        }
     }
 
     @Nullable
@@ -739,160 +366,35 @@ public class StringUtils
         return fallback;
     }
 
-    public static Text getTranslatedAsTextOrFallback(String key, @Nullable String fallback)
-    {
-        String result = getTranslatedOrFallback(key, fallback);
-
-        if (result == null)
-        {
-            return Text.empty();
-        }
-
-        return Text.of(result);
-    }
-
     // Some MCP vs. Yarn vs. MC versions compatibility/wrapper stuff below this
 
     /**
      * Just a wrapper around I18n, to reduce the number of changed lines between MCP/Yarn versions of mods
-     * @param translationKey ()
-     * @param args ()
-     * @return ()
+     * @param translationKey
+     * @param args
+     * @return
      */
     public static String translate(String translationKey, Object... args)
     {
-        try
-        {
-            if (MaLiLibConfigs.Debug.PRINT_TRANSLATION_KEYS.getBooleanValue() &&
-                hasTranslation(translationKey))
-            {
-                MaLiLib.LOGGER.info("Translation key: {}", translationKey);
-            }
-
-            /*
-            if (MaLiLibConfigs.Generic.TRANSLATION_OVERRIDES.getBooleanValue())
-            {
-                String translation = Registry.TRANSLATION_OVERRIDE_MANAGER.getOverriddenTranslation(translationKey, args);
-
-                if (translation != null)
-                {
-                    return translation;
-                }
-            }
-             */
-
-            return net.minecraft.client.resource.language.I18n.translate(translationKey, args);
-        }
-        catch (Exception e)
-        {
-            return translationKey;
-        }
-    }
-
-    public static Text translateAsText(String translationKey, Object... args)
-    {
-        return Text.of(translate(translationKey, args));
-    }
-
-    public static MutableText translateable(String translationKey)
-    {
-        return Text.translatable(translationKey);
-    }
-
-    public static MutableText translateable(String translationKey, Object... args)
-    {
-        return Text.translatable(translationKey, args);
-    }
-
-    /**
-     * Return if this translationKey has been found
-     * @param translationKey (Key th check)
-     * @return (True|False)
-     */
-    public static boolean hasTranslation(String translationKey)
-    {
-        return net.minecraft.client.resource.language.I18n.hasTranslation(translationKey);
-    }
-
-    /**
-     * Return a Read Friendly String from translationPath
-     * @param translationPath Raw translationPath
-     * @return Read Friendly String
-     */
-    public static String prettifyRawTranslationPath(@NotNull String translationPath)
-    {
-        return Arrays.stream(translationPath.split("_")).map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase()).collect(Collectors.joining(" "));
+        return net.minecraft.client.resource.language.I18n.translate(translationKey, args);
     }
 
     /**
      * Just a wrapper to get the font height from the Font/TextRenderer
-     * @return ()
+     * @return
      */
     public static int getFontHeight()
     {
-        return MinecraftClient.getInstance().textRenderer.fontHeight;
+        return net.minecraft.client.MinecraftClient.getInstance().textRenderer.fontHeight;
     }
 
     public static int getStringWidth(String text)
     {
-        return MinecraftClient.getInstance().textRenderer.getWidth(text);
+        return net.minecraft.client.MinecraftClient.getInstance().textRenderer.getWidth(text);
     }
 
-    public static void drawString(int x, int y, int color, String text, DrawContext drawContext)
+    public static void drawString(int x, int y, int color, String text, net.minecraft.client.gui.DrawContext drawContext)
     {
-        drawContext.drawText(MinecraftClient.getInstance().textRenderer, text, x, y, color, false);
-    }
-
-    /**
-     * Get a nicely formatted Duration string (ex: X hours, X minutes, X seconds)
-     * @param durationMs (Duration in Milliseconds (1 second * 1000L or 1 tick * 50L))
-     * @return (The formatted string)
-     */
-    public static String getDurationString(long durationMs)
-    {
-        return DurationFormat.PRETTY.format(durationMs);
-        // OG method
-        //return DurationFormatUtils.formatDurationWords(durationMs, true, true);
-    }
-
-    /**
-     * A copy of the Legacy Text.Deserializer that was removed from Vanilla.
-     * We need this for backwards compatibility with things like Litematica and NBT tags.
-     * @param oldText ()
-     * @param registry ()
-     * @return ()
-     */
-    public static @Nullable String legacyTextDeserializer(MutableText oldText, @Nonnull DynamicRegistryManager registry)
-    {
-        try
-        {
-            JsonElement element = TextCodecs.CODEC.encodeStart(registry.getOps(JsonOps.INSTANCE), oldText).getPartialOrThrow(JsonParseException::new);
-            return new GsonBuilder().disableHtmlEscaping().create().toJson(element);
-        }
-        catch (Exception err)
-        {
-            MaLiLib.LOGGER.error("legacyTextDeserializer: Failed to convert MutableText to JSON; {}", err.getLocalizedMessage());
-            return null;
-        }
-    }
-
-    /**
-     * A copy of the Legacy Text.Serializer that was removed from Vanilla.
-     * We need this for backwards compatibility with things like Litematica and NBT tags.
-     * @param json ()
-     * @param registry ()
-     * @return ()
-     */
-    public static @Nullable MutableText legacyTextSerializer(String json, @Nonnull DynamicRegistryManager registry)
-    {
-        try
-        {
-            return (MutableText) TextCodecs.CODEC.parse(registry.getOps(JsonOps.INSTANCE), JsonParser.parseString(json)).getOrThrow(JsonParseException::new);
-        }
-        catch (Exception err)
-        {
-            MaLiLib.LOGGER.error("legacyTextSerializer: Failed to convert JSON to MutableText; {}", err.getLocalizedMessage());
-            return null;
-        }
+        drawContext.drawText(net.minecraft.client.MinecraftClient.getInstance().textRenderer, text, x, y, color, false);
     }
 }

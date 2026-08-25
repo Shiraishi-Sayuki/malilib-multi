@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
 	group = "fi.dy.masa"
-	version = findProperty("mod_version") ?: "0.21.10"
+	version = findProperty("mod_version") ?: "0.16.4-alpha.1"
 }
 
 subprojects {
@@ -14,12 +14,12 @@ subprojects {
 
 	tasks.withType(JavaCompile).configureEach {
 		it.options.encoding = "UTF-8"
-		it.options.release = 21
+		it.options.release = 17
 	}
 
 	java {
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 		withSourcesJar()
 	}
 }

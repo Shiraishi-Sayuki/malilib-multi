@@ -1,38 +1,22 @@
 package fi.dy.masa.malilib.util;
 
-import java.util.*;
-import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nullable;
-
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.CrafterBlockEntity;
-import net.minecraft.block.enums.Orientation;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.*;
-import net.minecraft.util.Identifier;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.math.Direction;
-
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.util.nbt.NbtBlockUtils;
 
-/**
- * Consider Migrating to util/game/BlockUtils or util/nbt/NbtBlockUtils
- * {@link fi.dy.masa.malilib.util.game.BlockUtils}
- * {@link fi.dy.masa.malilib.util.nbt.NbtBlockUtils}
- */
-@Deprecated
-public class BlockUtils extends NbtBlockUtils
+public class BlockUtils
 {
     /**
      * Returns the first PropertyDirection property from the provided state, if any.
-     *
      * @param state
      * @return the first PropertyDirection, or null if there are no such properties
      */
@@ -64,125 +48,6 @@ public class BlockUtils extends NbtBlockUtils
         return prop != null ? state.get(prop) : null;
     }
 
-    @Nullable
-    public static Direction getPropertyFacingValue(BlockState state)
-    {
-        return state.contains(Properties.FACING) ? state.get(Properties.FACING) : null;
-    }
-
-    @Nullable
-    public static Direction getPropertyHopperFacingValue(BlockState state)
-    {
-        return state.contains(Properties.HOPPER_FACING) ? state.get(Properties.HOPPER_FACING) : null;
-    }
-
-    @Nullable
-    public static Direction getPropertyHorizontalFacingValue(BlockState state)
-    {
-        return state.contains(Properties.HORIZONTAL_FACING) ? state.get(Properties.HORIZONTAL_FACING) : null;
-    }
-
-    @Nullable
-    public static Orientation getPropertyOrientationValue(BlockState state)
-    {
-        return state.contains(Properties.ORIENTATION) ? state.get(Properties.ORIENTATION) : null;
-    }
-
-    @Nullable
-    public static Direction getPropertyOrientationFacing(BlockState state)
-    {
-        Orientation o = getPropertyOrientationValue(state);
-
-        return o != null ? o.getFacing() : null;
-    }
-
-    @Nullable
-    public static Direction getPropertyOrientationRotation(BlockState state)
-    {
-        Orientation o = getPropertyOrientationValue(state);
-
-        return o != null ? o.getRotation() : null;
-    }
-
-    public static boolean isFacingValidForDirection(ItemStack stack, Direction facing)
-    {
-        Item item = stack.getItem();
-
-        if (stack.isEmpty() == false && item instanceof BlockItem)
-        {
-            Block block = ((BlockItem) item).getBlock();
-            BlockState state = block.getDefaultState();
-
-            if (state.contains(Properties.FACING))
-            {
-                return true;
-            }
-            else if (state.contains(Properties.HOPPER_FACING) &&
-                    facing.equals(Direction.UP) == false)
-            {
-                return true;
-            }
-            else if (state.contains(Properties.HORIZONTAL_FACING) &&
-                    facing.equals(Direction.UP) == false &&
-                    facing.equals(Direction.DOWN) == false)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static int getDirectionFacingIndex(ItemStack stack, Direction facing)
-    {
-        if (isFacingValidForDirection(stack, facing))
-        {
-            return facing.getId();
-        }
-
-        return -1;
-    }
-
-    public static boolean isFacingValidForOrientation(ItemStack stack, Direction facing)
-    {
-        Item item = stack.getItem();
-
-        if (stack.isEmpty() == false && item instanceof BlockItem)
-        {
-            Block block = ((BlockItem) item).getBlock();
-            BlockState state = block.getDefaultState();
-
-            return state.contains(Properties.ORIENTATION);
-        }
-
-        return false;
-    }
-
-    public static int getOrientationFacingIndex(ItemStack stack, Direction facing)
-    {
-        if (stack.getItem() instanceof BlockItem blockItem)
-        {
-            BlockState defaultState = blockItem.getBlock().getDefaultState();
-
-            if (defaultState.contains(Properties.ORIENTATION))
-            {
-                List<Orientation> list = Arrays.stream(Orientation.values()).toList();
-
-                for (int i = 0; i < list.size(); i++)
-                {
-                    Orientation o = list.get(i);
-
-                    if (o.getFacing().equals(facing))
-                    {
-                        return i;
-                    }
-                }
-            }
-        }
-
-        return -1;
-    }
-
     public static List<String> getFormattedBlockStateProperties(BlockState state)
     {
         return getFormattedBlockStateProperties(state, ": ");
@@ -209,17 +74,6 @@ public class BlockUtils extends NbtBlockUtils
                 {
                     lines.add(prop.getName() + separator + GuiBase.TXT_GOLD + val.toString());
                 }
-                else if (prop instanceof EnumProperty<?> enumProperty)
-                {
-                    if (enumProperty.getType().equals(Direction.class))
-                    {
-                        lines.add(prop.getName() + separator + GuiBase.TXT_GOLD + val.toString());
-                    }
-                    else if (enumProperty.getType().equals(Orientation.class))
-                    {
-                        lines.add(prop.getName() + separator + GuiBase.TXT_LIGHT_PURPLE + val.toString());
-                    }
-                }
                 else if (prop instanceof IntProperty)
                 {
                     lines.add(prop.getName() + separator + GuiBase.TXT_AQUA + val.toString());
@@ -234,48 +88,5 @@ public class BlockUtils extends NbtBlockUtils
         }
 
         return Collections.emptyList();
-    }
-
-    /**
-     * Get a Crafter's "locked slots" from the Block Entity by iterating all 9 slots.
-     *
-     * @param ce
-     * @return
-     */
-    public static Set<Integer> getDisabledSlots(CrafterBlockEntity ce)
-    {
-        Set<Integer> list = new HashSet<>();
-
-        if (ce != null)
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                if (ce.isSlotDisabled(i))
-                {
-                    list.add(i);
-                }
-            }
-        }
-
-        return list;
-    }
-
-    /**
-     * Get a Block's Regitry Entry.
-     *
-     * @param id
-     * @param registry
-     * @return
-     */
-    public static RegistryEntry<Block> getBlockEntry(Identifier id, @Nonnull DynamicRegistryManager registry)
-    {
-        try
-        {
-            return registry.getOptional(Registries.BLOCK.getKey()).flatMap(optional -> optional.getEntry(id)).orElse(null);
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
     }
 }

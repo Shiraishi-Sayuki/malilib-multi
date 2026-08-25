@@ -4,15 +4,8 @@ plugins {
 }
 
 repositories {
-	maven { url = 'https://api.modrinth.com/maven' }
-	maven { url = 'https://maven.neoforged.net/releases' }
-	maven { url = 'https://maven.architectury.dev/' }
-	maven { url = 'https://maven.terraformersmc.com/releases/'
-		content { includeGroupAndSubgroups("com.terraformersmc") }
-	}
-	maven { url = 'https://maven.fallenbreath.me/releases'
-		content { includeGroupAndSubgroups("me.fallenbreath") }
-	}
+	maven { url = 'https://maven.minecraftforge.net/' }
+	maven { url = 'https://libraries.minecraft.net/' }
 }
 
 configurations {
@@ -26,11 +19,8 @@ configurations {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.layered {
-		mappings "net.fabricmc:yarn:${project.mappings_version}:v2"
-		mappings "dev.architectury:yarn-mappings-patch-neoforge:${yarn_mappings_patch_neoforge}"
-	}
-	neoForge "net.neoforged:neoforge:${project.neoforge_version}"
+	mappings "net.fabricmc:yarn:${project.mappings_version}:v2"
+	forge "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
 	implementation "com.google.code.findbugs:jsr305:3.0.2"
 	compileOnly "org.jetbrains:annotations:24.1.0"
@@ -39,17 +29,20 @@ dependencies {
 	commonResources project(path: ':common', configuration: 'commonResources')
 }
 
-// Compile common sources directly with official (patched) mappings (single remap pass)
+// Compile common sources directly with Yarn mappings - loom reobfuscates to SRG for production
 // Exclude loader-specific mixins that are overridden in this module
 tasks.named('compileJava', JavaCompile) {
 	dependsOn(configurations.commonJava)
 	def commonSrcDir = configurations.commonJava.singleFile
-	source(files(commonSrcDir).asFileTree.matching { exclude '**/mixin/screen/MixinHandledScreen.java' })
+	source(files(commonSrcDir).asFileTree.matching {
+		exclude '**/mixin/MixinHandledScreen.java'
+		exclude '**/mixin/MixinInGameHud.java'
+	})
 }
 
 base {
-	archivesName = "malilib-neoforge-${project.minecraft_version_out}"
 	group = project.group + "." + project.mod_id
+	archivesName = "malilib-forge-${project.minecraft_version_out}"
 	version = project.mod_version
 	if (version.endsWith('-dev')) {
 		version += "." + new Date().format('yyyyMMdd.HHmmss')
@@ -57,7 +50,11 @@ base {
 }
 
 loom {
-	accessWidenerPath = file("src/main/resources/malilib.accesswidener")
+	forge {
+		mixinConfigs = [
+			"mixins.malilib.json"
+		]
+	}
 	mixin {
 		useLegacyMixinAp = true
 		defaultRefmapName.set("malilib.refmap.json")
@@ -67,31 +64,23 @@ loom {
 processResources {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from(configurations.commonResources) {
-		exclude '**/malilib.accesswidener'
 		exclude '**/*.xcf'
 		exclude '**/xcf'
 	}
 	inputs.property "mod_version", project.mod_version
-	filesMatching("META-INF/neoforge.mods.toml") {
-		expand "mod_version": project.mod_version
+	filesMatching("META-INF/mods.toml") {
+		expand "version": project.version
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = "UTF-8"
-	it.options.release = 21
-}
-
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
 	withSourcesJar()
 }
 
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	from(rootProject.file("LICENSE")) {
-		rename { "${it}_${base.archivesName}"}
+	from(rootProject.file("LICENSE.txt")) {
+		rename { "${it}_${base.archivesName}" }
 	}
 }
 

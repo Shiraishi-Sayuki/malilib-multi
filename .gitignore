@@ -16,9 +16,7 @@ libs/
 **/libs/
 CommonMaven/
 fabric/run/
-neoforge/run/
+forge/run/
 common/run/
-/src/main/generated/.cache/
-**/generated/
 *.log
 out/

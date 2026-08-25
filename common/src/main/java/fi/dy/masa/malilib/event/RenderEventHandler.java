@@ -2,15 +2,13 @@ package fi.dy.masa.malilib.event;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.Item;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
 
 import fi.dy.masa.malilib.interfaces.IRenderDispatcher;
 import fi.dy.masa.malilib.interfaces.IRenderer;
@@ -56,25 +54,9 @@ public class RenderEventHandler implements IRenderDispatcher
         }
     }
 
-    @ApiStatus.Internal
-    public void onRenderGameOverlayLastDrawer(DrawContext drawContext, MinecraftClient mc, float partialTicks)
-    {
-        mc.getProfiler().push("malilib_rendergameoverlaydrawer");
-
-        if (this.overlayRenderers.isEmpty() == false)
-        {
-            for (IRenderer renderer : this.overlayRenderers)
-            {
-                mc.getProfiler().push(renderer.getProfilerSectionSupplier());
-                renderer.onRenderGameOverlayLastDrawer(drawContext, partialTicks, mc.getProfiler(), mc);
-                mc.getProfiler().pop();
-            }
-        }
-
-        mc.getProfiler().pop();
-    }
-
-    @ApiStatus.Internal
+    /**
+     * NOT PUBLIC API - DO NOT CALL
+     */
     public void onRenderGameOverlayPost(DrawContext drawContext, MinecraftClient mc, float partialTicks)
     {
         mc.getProfiler().push("malilib_rendergameoverlaypost");
@@ -96,43 +78,9 @@ public class RenderEventHandler implements IRenderDispatcher
         mc.getProfiler().pop();
     }
 
-    @ApiStatus.Internal
-    public void onRenderTooltipComponentInsertFirst(Item.TooltipContext context, ItemStack stack, List<Text> list)
-    {
-        if (this.tooltipLastRenderers.isEmpty() == false)
-        {
-            for (IRenderer renderer : this.tooltipLastRenderers)
-            {
-                renderer.onRenderTooltipComponentInsertFirst(context, stack, list);
-            }
-        }
-    }
-
-    @ApiStatus.Internal
-    public void onRenderTooltipComponentInsertMiddle(Item.TooltipContext context, ItemStack stack, List<Text> list)
-    {
-        if (this.tooltipLastRenderers.isEmpty() == false)
-        {
-            for (IRenderer renderer : this.tooltipLastRenderers)
-            {
-                renderer.onRenderTooltipComponentInsertMiddle(context, stack, list);
-            }
-        }
-    }
-
-    @ApiStatus.Internal
-    public void onRenderTooltipComponentInsertLast(Item.TooltipContext context, ItemStack stack, List<Text> list)
-    {
-        if (this.tooltipLastRenderers.isEmpty() == false)
-        {
-            for (IRenderer renderer : this.tooltipLastRenderers)
-            {
-                renderer.onRenderTooltipComponentInsertLast(context, stack, list);
-            }
-        }
-    }
-
-    @ApiStatus.Internal
+    /**
+     * NOT PUBLIC API - DO NOT CALL
+     */
     public void onRenderTooltipLast(DrawContext drawContext, ItemStack stack, int x, int y)
     {
         if (this.tooltipLastRenderers.isEmpty() == false)
@@ -144,8 +92,10 @@ public class RenderEventHandler implements IRenderDispatcher
         }
     }
 
-    @ApiStatus.Internal
-    public void onRenderWorldLast(Matrix4f matrix4f, Matrix4f projMatrix, MinecraftClient mc)
+    /**
+     * NOT PUBLIC API - DO NOT CALL
+     */
+    public void onRenderWorldLast(MatrixStack matrixStack, Matrix4f projMatrix, MinecraftClient mc)
     {
         if (this.worldLastRenderers.isEmpty() == false)
         {
@@ -161,7 +111,7 @@ public class RenderEventHandler implements IRenderDispatcher
             for (IRenderer renderer : this.worldLastRenderers)
             {
                 mc.getProfiler().push(renderer.getProfilerSectionSupplier());
-                renderer.onRenderWorldLast(matrix4f, projMatrix);
+                renderer.onRenderWorldLast(matrixStack, projMatrix);
                 mc.getProfiler().pop();
             }
 
