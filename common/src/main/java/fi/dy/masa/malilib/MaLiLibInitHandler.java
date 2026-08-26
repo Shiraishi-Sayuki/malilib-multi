@@ -21,13 +21,6 @@ public class MaLiLibInitHandler implements IInitializationHandler
         InputEventHandler.getKeybindManager().registerKeybindProvider(MaLiLibInputHandler.getInstance());
         MaLiLibConfigs.Generic.OPEN_GUI_CONFIGS.getKeybind().setCallback(new CallbackOpenConfigGui());
 
-        if (MaLiLibReference.DEBUG_MODE)
-        {
-            //RenderEventHandler.getInstance().registerWorldPreWeatherRenderer(renderer);
-            RenderEventHandler.getInstance().registerWorldLastRenderer(renderer);
-
-            ClientCommandHandler.INSTANCE.registerCommand(new TestCommand());
-        }
 
         MaLiLibCallbacks.init();
     }

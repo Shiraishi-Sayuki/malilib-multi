@@ -88,10 +88,6 @@ public class MaLiLibConfigGui extends GuiConfigsBase
         {
             configs = MaLiLibConfigs.Debug.OPTIONS;
         }
-        else if (tab == ConfigGuiTab.TEST && MaLiLibReference.DEBUG_MODE)
-        {
-            configs = MaLiLibConfigs.Test.OPTIONS;
-        }
         else if (tab == ConfigGuiTab.EXPERIMENTAL && MaLiLibReference.EXPERIMENTAL_MODE)
         {
             configs = MaLiLibConfigs.Experimental.OPTIONS;

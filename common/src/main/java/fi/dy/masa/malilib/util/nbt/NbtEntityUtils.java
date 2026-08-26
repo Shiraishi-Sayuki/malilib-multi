@@ -247,12 +247,12 @@ public class NbtEntityUtils
         {
             if (nbtIn != null)
             {
-                nbtIn.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString(name));
+                nbtIn.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString((net.minecraft.text.Text) name));
                 return nbtIn;
             }
             else
             {
-                nbt.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString(name));
+                nbt.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString((net.minecraft.text.Text) name));
             }
         }
         catch (Exception ignored) {}
