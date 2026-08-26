@@ -444,13 +444,19 @@ public class JsonUtils
     @Nullable
     public static JsonElement parseJsonFileAsPath(Path file)
     {
-        if (file != null && Files.exists(file) && Files.isReadable(file))
+        // Androidのスコープ付きストレージではFiles.exists/isReadableが偽阴性を返すことがあるため
+        // 属性チェックを介さず直接読みに行く(無ければNoSuchFileExceptionで静かに無視)
+        if (file != null)
         {
             String fileName = file.toString();
 
             try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(file), StandardCharsets.UTF_8))
             {
                 return JsonParser.parseReader(reader);
+            }
+            catch (java.nio.file.NoSuchFileException e)
+            {
+                // 初回起動時は単にファイルが無いだけ
             }
             catch (Exception e)
             {

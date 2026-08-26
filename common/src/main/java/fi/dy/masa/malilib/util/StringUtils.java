@@ -403,4 +403,10 @@ public class StringUtils
     {
         return net.minecraft.text.Text.translatable(translationKey, args).getString();
     }
+
+    // 翻訳キーが存在するか(依存MODから使用される)
+    public static boolean hasTranslation(String translationKey)
+    {
+        return net.minecraft.client.resource.language.I18n.hasTranslation(translationKey);
+    }
 }

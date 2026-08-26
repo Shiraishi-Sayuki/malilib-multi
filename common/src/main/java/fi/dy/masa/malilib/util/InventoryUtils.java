@@ -476,6 +476,65 @@ public class InventoryUtils
     // 1.20.1用ヘルパー - 1.21のコンポーネント経由ではなくNBTから直接インベントリを復元する
 
     // プレイヤーNBTの"EnderItems"からエンダーチェストを作る
+    // 1.20.1用 - NBTのItemsリストからインベントリを復元する(依存MODから使用)
+    public static Inventory getNbtInventory(net.minecraft.nbt.NbtCompound nbt, int slots, net.minecraft.registry.DynamicRegistryManager registry)
+    {
+        int size = slots > 0 ? slots : 27;
+        net.minecraft.util.collection.DefaultedList<net.minecraft.item.ItemStack> stacks =
+                net.minecraft.util.collection.DefaultedList.ofSize(size, net.minecraft.item.ItemStack.EMPTY);
+
+        net.minecraft.nbt.NbtList list = nbt.getList("Items", net.minecraft.nbt.NbtElement.COMPOUND_TYPE);
+
+        for (int i = 0; i < list.size(); ++i)
+        {
+            net.minecraft.nbt.NbtCompound tag = list.getCompound(i);
+            int slot = tag.getInt("Slot");
+
+            if (slot >= 0 && slot < size)
+            {
+                stacks.set(slot, net.minecraft.item.ItemStack.fromNbt(tag));
+            }
+        }
+
+        return new net.minecraft.inventory.SimpleInventory(stacks.toArray(new net.minecraft.item.ItemStack[0]));
+    }
+
+    // 馬/ロバ/ラマ用 - "SaddleItem"/"ArmorItem"/"DecorItem"も考慮する
+    public static Inventory getNbtInventoryHorseFix(net.minecraft.nbt.NbtCompound nbt, int slots, net.minecraft.registry.DynamicRegistryManager registry)
+    {
+        int size = slots > 0 ? slots : 16;
+        net.minecraft.util.collection.DefaultedList<net.minecraft.item.ItemStack> stacks =
+                net.minecraft.util.collection.DefaultedList.ofSize(size, net.minecraft.item.ItemStack.EMPTY);
+
+        net.minecraft.nbt.NbtList list = nbt.getList("Items", net.minecraft.nbt.NbtElement.COMPOUND_TYPE);
+
+        for (int i = 0; i < list.size(); ++i)
+        {
+            net.minecraft.nbt.NbtCompound tag = list.getCompound(i);
+            int slot = tag.getInt("Slot");
+
+            if (slot >= 1 && slot < size)
+            {
+                stacks.set(slot, net.minecraft.item.ItemStack.fromNbt(tag));
+            }
+        }
+
+        if (nbt.contains("SaddleItem", net.minecraft.nbt.NbtElement.COMPOUND_TYPE))
+        {
+            stacks.set(0, net.minecraft.item.ItemStack.fromNbt(nbt.getCompound("SaddleItem")));
+        }
+        else if (nbt.contains("ArmorItem", net.minecraft.nbt.NbtElement.COMPOUND_TYPE) && size > 1)
+        {
+            stacks.set(1, net.minecraft.item.ItemStack.fromNbt(nbt.getCompound("ArmorItem")));
+        }
+        else if (nbt.contains("DecorItem", net.minecraft.nbt.NbtElement.COMPOUND_TYPE) && size > 1)
+        {
+            stacks.set(1, net.minecraft.item.ItemStack.fromNbt(nbt.getCompound("DecorItem")));
+        }
+
+        return new net.minecraft.inventory.SimpleInventory(stacks.toArray(new net.minecraft.item.ItemStack[0]));
+    }
+
     public static net.minecraft.inventory.EnderChestInventory getPlayerEnderItemsFromNbt(net.minecraft.nbt.NbtCompound playerNbt, net.minecraft.registry.DynamicRegistryManager registry)
     {
         net.minecraft.inventory.EnderChestInventory inv = new net.minecraft.inventory.EnderChestInventory();
