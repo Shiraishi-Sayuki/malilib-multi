@@ -25,15 +25,11 @@
   "screen.MixinHandledScreen",
   "screen.MixinInventoryScreen",
   "server.MixinIntegratedServer",
-  "server.MixinMinecraftServer",
-  "test.MixinClientPlayInteractionManager_testSelector",
-  "test.MixinMinecraftClient_testSelector"
+  "server.MixinMinecraftServer"
  ],
  "injectors": {
   "defaultRequire": 1
  },
- "mixins": [
-  "test.MixinSharedConstants"
- ],
+ "mixins": [],
  "server": []
 }
