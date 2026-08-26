@@ -42,21 +42,29 @@ public class ConfigTable extends ConfigBase<ConfigTable> implements IConfigTable
 							                                                                                      List<String> temp = new ArrayList<>();
 							                                                                                      for (Entry entry : row.list())
 							                                                                                      {
-								                                                                                      switch (entry)
+								                                                                                      if (entry instanceof StringEntry str)
 								                                                                                      {
-									                                                                                      case StringEntry str ->
-											                                                                                      temp.add("str" + str.getValue());
-									                                                                                      case LabelEntry lbl ->
-											                                                                                      temp.add("lbl" + lbl.getValue().label());
-									                                                                                      case IntegerEntry integer ->
-											                                                                                      temp.add("int" + integer.getValue());
-									                                                                                      case DoubleEntry dbl ->
-											                                                                                      temp.add("dbl" + dbl.getValue());
-									                                                                                      case BooleanEntry bln ->
-											                                                                                      temp.add("bln" + bln.getValue());
-//                                    case KeybindEntry kbe -> temp.add("key" + kbe.getStringValue());
-									                                                                                      default ->
-											                                                                                      throw new IllegalStateException("Unsupported type: " + entry.getType());
+								                                                                                          temp.add("str" + str.getValue());
+								                                                                                      }
+								                                                                                      else if (entry instanceof LabelEntry lbl)
+								                                                                                      {
+								                                                                                          temp.add("lbl" + lbl.getValue().label());
+								                                                                                      }
+								                                                                                      else if (entry instanceof IntegerEntry integer)
+								                                                                                      {
+								                                                                                          temp.add("int" + integer.getValue());
+								                                                                                      }
+								                                                                                      else if (entry instanceof DoubleEntry dbl)
+								                                                                                      {
+								                                                                                          temp.add("dbl" + dbl.getValue());
+								                                                                                      }
+								                                                                                      else if (entry instanceof BooleanEntry bln)
+								                                                                                      {
+								                                                                                          temp.add("bln" + bln.getValue());
+								                                                                                      }
+								                                                                                      else
+								                                                                                      {
+								                                                                                          throw new IllegalStateException("Unsupported type: " + entry.getType());
 								                                                                                      }
 							                                                                                      }
 							                                                                                      table.add(temp);
@@ -71,21 +79,29 @@ public class ConfigTable extends ConfigBase<ConfigTable> implements IConfigTable
 							                                                                               List<String> temp = new ArrayList<>();
 							                                                                               for (Entry entry : row.list())
 							                                                                               {
-								                                                                               switch (entry)
+								                                                                               if (entry instanceof StringEntry str)
 								                                                                               {
-									                                                                               case StringEntry str ->
-											                                                                               temp.add("str" + str.getValue());
-									                                                                               case LabelEntry lbl ->
-											                                                                               temp.add("lbl" + lbl.getValue().label());
-									                                                                               case IntegerEntry integer ->
-											                                                                               temp.add("int" + integer.getValue());
-									                                                                               case DoubleEntry dbl ->
-											                                                                               temp.add("dbl" + dbl.getValue());
-									                                                                               case BooleanEntry bln ->
-											                                                                               temp.add("bln" + bln.getValue());
-//                                    case KeybindEntry kbe -> temp.add("key" + kbe.getStringValue());
-									                                                                               default ->
-											                                                                               throw new IllegalStateException("Unsupported type: " + entry.getType());
+								                                                                                   temp.add("str" + str.getValue());
+								                                                                               }
+								                                                                               else if (entry instanceof LabelEntry lbl)
+								                                                                               {
+								                                                                                   temp.add("lbl" + lbl.getValue().label());
+								                                                                               }
+								                                                                               else if (entry instanceof IntegerEntry integer)
+								                                                                               {
+								                                                                                   temp.add("int" + integer.getValue());
+								                                                                               }
+								                                                                               else if (entry instanceof DoubleEntry dbl)
+								                                                                               {
+								                                                                                   temp.add("dbl" + dbl.getValue());
+								                                                                               }
+								                                                                               else if (entry instanceof BooleanEntry bln)
+								                                                                               {
+								                                                                                   temp.add("bln" + bln.getValue());
+								                                                                               }
+								                                                                               else
+								                                                                               {
+								                                                                                   throw new IllegalStateException("Unsupported type: " + entry.getType());
 								                                                                               }
 							                                                                               }
 							                                                                               table.add(temp);
@@ -110,15 +126,15 @@ public class ConfigTable extends ConfigBase<ConfigTable> implements IConfigTable
 						                                                          {
 							                                                          switch (type)
 							                                                          {
-								                                                          case EntryTypes.STRING ->
+								                                                          case STRING ->
 										                                                          typeNames.add("str");
-								                                                          case EntryTypes.LABEL ->
+								                                                          case LABEL ->
 										                                                          typeNames.add("lbl");
-								                                                          case EntryTypes.INTEGER ->
+								                                                          case INTEGER ->
 										                                                          typeNames.add("int");
-								                                                          case EntryTypes.DOUBLE ->
+								                                                          case DOUBLE ->
 										                                                          typeNames.add("dbl");
-								                                                          case EntryTypes.BOOLEAN ->
+								                                                          case BOOLEAN ->
 										                                                          typeNames.add("bln");
 								                                                          default ->
 										                                                          throw new IllegalStateException("Unsupported type: " + type.name());
@@ -148,7 +164,7 @@ public class ConfigTable extends ConfigBase<ConfigTable> implements IConfigTable
         List<Label> labelList = new ArrayList<>();
         for (List<String> label : labels)
         {
-            labelList.add(Label.of(label.getFirst(), label.get(1)));
+            labelList.add(Label.of(label.get(0), label.get(1)));
         }
         return labelList;
     }
@@ -632,7 +648,7 @@ public class ConfigTable extends ConfigBase<ConfigTable> implements IConfigTable
 			{
 				for (int i = 0; i < this.entryCount; i++)
 				{
-					this.defaultValue.add(new TableRow(this.defaultValue.getFirst().list()));
+					this.defaultValue.add(new TableRow(this.defaultValue.get(0).list()));
 				}
 			}
 			else if (this.entryCount > 0 && this.defaultValue.isEmpty())

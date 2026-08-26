@@ -19,6 +19,15 @@ public class CodecsWrap extends Codecs
 	public static <E> Codec<List<E>> listOrSingle(Codec<E> entryCodec, Codec<List<E>> listCodec)
 	{
 		return Codec.either(listCodec, entryCodec)
-		            .xmap(either -> either.map(list -> list, List::of), list -> list.size() == 1 ? Either.right(list.getFirst()) : Either.left(list));
+		            .xmap(either -> either.map(list -> list, List::of),
+		                  list ->
+		                  {
+		                      // 型推論の揺れを避けるため型証明を明示する
+		                      if (list.size() == 1)
+		                      {
+		                          return com.mojang.datafixers.util.Either.<List<E>, E>right(list.get(0));
+		                      }
+		                      return com.mojang.datafixers.util.Either.<List<E>, E>left(list);
+		                  });
 	}
 }

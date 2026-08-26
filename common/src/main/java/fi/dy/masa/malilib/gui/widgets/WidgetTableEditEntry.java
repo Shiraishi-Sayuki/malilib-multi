@@ -130,18 +130,26 @@ public class WidgetTableEditEntry extends WidgetConfigOptionBase<TableRow>
 
 			if (type == EntryTypes.STRING || type == EntryTypes.INTEGER || type == EntryTypes.DOUBLE)
 			{
-				GuiTextFieldGeneric tf = switch (value)
-				{
-					// why the hell is either the reset button or the text widgets Y/height off by half a pixel???
-					case StringEntry ignored when type == EntryTypes.STRING ->
-							new GuiTextFieldGeneric(x + i * (configWidth / types.size()) + 2, y, configWidth / types.size() - 4, configHeight - 3, this.textRenderer);
-					case IntegerEntry ignored when type == EntryTypes.INTEGER ->
-							new GuiTextFieldInteger(x + i * (configWidth / types.size()) + 2, y, configWidth / types.size() - 4, configHeight - 3, this.textRenderer);
-					case DoubleEntry ignored when type == EntryTypes.DOUBLE ->
-							new GuiTextFieldDouble(x + i * (configWidth / types.size()) + 2, y, configWidth / types.size() - 4, configHeight - 3, this.textRenderer);
-					default ->
-							throw new IllegalStateException("Unsupported type: " + type.name() + " with value: " + value.getType().name());
-				};
+				// 1.20.1パッチ - Java 17ではパターンswitchが使えないのでif/elseへ
+GuiTextFieldGeneric tf;
+
+if (type == EntryTypes.STRING && value instanceof StringEntry)
+{
+    // why the hell is either the reset button or the text widgets Y/height off by half a pixel???
+    tf = new GuiTextFieldGeneric(x + i * (configWidth / types.size()) + 2, y, configWidth / types.size() - 4, configHeight - 3, this.textRenderer);
+}
+else if (type == EntryTypes.INTEGER && value instanceof IntegerEntry)
+{
+    tf = new GuiTextFieldInteger(x + i * (configWidth / types.size()) + 2, y, configWidth / types.size() - 4, configHeight - 3, this.textRenderer);
+}
+else if (type == EntryTypes.DOUBLE && value instanceof DoubleEntry)
+{
+    tf = new GuiTextFieldDouble(x + i * (configWidth / types.size()) + 2, y, configWidth / types.size() - 4, configHeight - 3, this.textRenderer);
+}
+else
+{
+    throw new IllegalStateException("Unsupported type: " + type.name() + " with value: " + value.getType().name());
+};
 				tf.setMaxLength(this.maxTextfieldTextLength);
 				tf.setText(Entry.getString(value));
 				TextFieldWrapper<? extends GuiTextFieldGeneric> wrapper = new TextFieldWrapper<>(tf, textField ->

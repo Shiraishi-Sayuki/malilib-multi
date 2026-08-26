@@ -48,36 +48,33 @@ public class WidgetConfigOption extends WidgetConfigOptionBase<ConfigOptionWrapp
         {
             IConfigBase config = wrapper.getConfig();
 
-            switch (config)
+if (config instanceof BooleanHotkeyGuiWrapper booleanHotkey)
             {
-                case BooleanHotkeyGuiWrapper booleanHotkey ->
-                {
-                    this.initialBoolean = booleanHotkey.getBooleanValue();
-                    this.initialStringValue = booleanHotkey.getKeybind().getStringValue();
-                    this.initialKeybindSettings = booleanHotkey.getKeybind().getSettings();
-                }
-                case ConfigBooleanHotkeyed booleanHotkey ->
-                {
-                    this.initialBoolean = booleanHotkey.getBooleanValue();
-                    this.initialStringValue = booleanHotkey.getKeybind().getStringValue();
-                    this.initialKeybindSettings = booleanHotkey.getKeybind().getSettings();
-                }
-                case IStringRepresentable configStr ->
-                {
-                    this.initialStringValue = configStr.getStringValue();
-                    this.lastAppliedValue = configStr.getStringValue();
-                    this.initialKeybindSettings = config.getType() == ConfigType.HOTKEY ? ((IHotkey) config).getKeybind().getSettings() : null;
-                }
-                case null, default ->
-                {
-                    this.initialStringValue = null;
-                    this.lastAppliedValue = null;
-                    this.initialKeybindSettings = null;
+                this.initialBoolean = booleanHotkey.getBooleanValue();
+                this.initialStringValue = booleanHotkey.getKeybind().getStringValue();
+                this.initialKeybindSettings = booleanHotkey.getKeybind().getSettings();
+            }
+            else if (config instanceof ConfigBooleanHotkeyed booleanHotkey)
+            {
+                this.initialBoolean = booleanHotkey.getBooleanValue();
+                this.initialStringValue = booleanHotkey.getKeybind().getStringValue();
+                this.initialKeybindSettings = booleanHotkey.getKeybind().getSettings();
+            }
+            else if (config instanceof IStringRepresentable configStr)
+            {
+                this.initialStringValue = configStr.getStringValue();
+                this.lastAppliedValue = configStr.getStringValue();
+                this.initialKeybindSettings = config.getType() == ConfigType.HOTKEY ? ((IHotkey) config).getKeybind().getSettings() : null;
+            }
+            else
+            {
+                this.initialStringValue = null;
+                this.lastAppliedValue = null;
+                this.initialKeybindSettings = null;
 
-                    if (config instanceof IConfigStringList)
-                    {
-                        this.initialStringList = ImmutableList.copyOf(((IConfigStringList) config).getStrings());
-                    }
+                if (config instanceof IConfigStringList)
+                {
+                    this.initialStringList = ImmutableList.copyOf(((IConfigStringList) config).getStrings());
                 }
             }
 
@@ -374,15 +371,22 @@ public class WidgetConfigOption extends WidgetConfigOptionBase<ConfigOptionWrapp
         ButtonGeneric resetButton = this.createResetButton(resetX, y, config);
         ISliderCallback callback;
 
-        switch (config)
+        // Java 17パターンswitch代替
+        if (config instanceof IConfigDouble iConfigDouble)
         {
-            case IConfigDouble iConfigDouble -> callback = new SliderCallbackDouble(iConfigDouble, resetButton);
-            case IConfigFloat iConfigFloat -> callback = new SliderCallbackFloat(iConfigFloat, resetButton);
-            case IConfigInteger iConfigInteger -> callback = new SliderCallbackInteger(iConfigInteger, resetButton);
-            default ->
-            {
-                return;
-            }
+            callback = new SliderCallbackDouble(iConfigDouble, resetButton);
+        }
+        else if (config instanceof IConfigFloat iConfigFloat)
+        {
+            callback = new SliderCallbackFloat(iConfigFloat, resetButton);
+        }
+        else if (config instanceof IConfigInteger iConfigInteger)
+        {
+            callback = new SliderCallbackInteger(iConfigInteger, resetButton);
+        }
+        else
+        {
+            return;
         }
 
         WidgetSlider slider = new WidgetSlider(x, y, configWidth, configHeight, callback);

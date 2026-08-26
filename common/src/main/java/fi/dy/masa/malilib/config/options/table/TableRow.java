@@ -34,16 +34,33 @@ public record TableRow(List<Entry> list)
 		TableRow tableRow = new TableRow();
 		for (Object entry : entries)
 		{
-			switch (entry)
+			if (entry instanceof String s)
 			{
-				case String s -> tableRow.add(new StringEntry(s));
-				case Integer i -> tableRow.add(new IntegerEntry(i));
-				case Double v -> tableRow.add(new DoubleEntry(v));
-				case Boolean b -> tableRow.add(new BooleanEntry(b));
-//                case IKeybind k -> tableRow.add(new KeybindEntry(k));
-                case Label l -> tableRow.add(new LabelEntry(l));
-				case Entry e -> tableRow.add(e);
-				default -> throw new IllegalArgumentException("Unsupported entry type: " + entry.getClass().getName());
+			    tableRow.add(new StringEntry(s));
+			}
+			else if (entry instanceof Integer i)
+			{
+			    tableRow.add(new IntegerEntry(i));
+			}
+			else if (entry instanceof Double v)
+			{
+			    tableRow.add(new DoubleEntry(v));
+			}
+			else if (entry instanceof Boolean b)
+			{
+			    tableRow.add(new BooleanEntry(b));
+			}
+			else if (entry instanceof Label l)
+			{
+			    tableRow.add(new LabelEntry(l));
+			}
+			else if (entry instanceof Entry e)
+			{
+			    tableRow.add(e);
+			}
+			else
+			{
+			    throw new IllegalArgumentException("Unsupported entry type: " + entry.getClass().getName());
 			}
 		}
 		return tableRow;
@@ -119,10 +136,12 @@ public record TableRow(List<Entry> list)
 	@Override
 	public boolean equals(Object other)
 	{
-		if (!(other instanceof TableRow(List<Entry> list1)))
+		if (!(other instanceof TableRow))
 		{
 			return false;
 		}
+
+		List<Entry> list1 = ((TableRow) other).list();
 		if (this.list.size() != list1.size())
 		{
 			return false;

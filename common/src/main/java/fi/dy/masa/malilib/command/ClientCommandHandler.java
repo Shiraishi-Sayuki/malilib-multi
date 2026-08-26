@@ -63,7 +63,7 @@ public class ClientCommandHandler implements ICommandDispatcher
                     List<String> args = Arrays.stream(message.split("\\s+")).toList();
 
                     // Double verify we have a full word match
-                    if (args.getFirst().equalsIgnoreCase(command.getCommand()))
+                    if (args.get(0).equalsIgnoreCase(command.getCommand()))
                     {
                         return command.execute(args, mc);
                     }
