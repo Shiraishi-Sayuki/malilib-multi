@@ -31,8 +31,7 @@ public abstract class MixinClientPlayNetworkHandler
     }
 
     @Inject(method = "onGameJoin", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;joinWorld(Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/gui/screen/DownloadingTerrainScreen$WorldEntryReason;)V",
-            shift = At.Shift.BEFORE))
+            target = "Lnet/minecraft/client/MinecraftClient;joinWorld(Lnet/minecraft/client/world/ClientWorld;)V"))
     private void onPreGameJoin(GameJoinS2CPacket packet, CallbackInfo ci)
     {
         //MaLiLib.logger.error("CP#onPreGameJoin(): world [{}], worldBefore [{}]", this.world != null, this.worldBefore != null);

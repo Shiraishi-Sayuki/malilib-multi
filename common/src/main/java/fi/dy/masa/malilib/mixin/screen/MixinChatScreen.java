@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import fi.dy.masa.malilib.command.ClientCommandHandler;
 
@@ -19,11 +19,12 @@ public abstract class MixinChatScreen extends Screen
     }
 
     @Inject(method = "sendMessage", at = @At("HEAD"), cancellable = true)
-    private void malilib_onSendChatMessage(String msg, boolean addToHistory, CallbackInfo ci)
+    private void malilib_onSendChatMessage(String msg, boolean addToHistory, CallbackInfoReturnable<Boolean> cir)
     {
+        // sendMessageはbooleanを返すのでCallbackInfoReturnableが必要
         if (!msg.isEmpty() && ClientCommandHandler.INSTANCE.onSendClientMessage(msg, this.client))
         {
-            ci.cancel();
+            cir.setReturnValue(true);
         }
     }
 }

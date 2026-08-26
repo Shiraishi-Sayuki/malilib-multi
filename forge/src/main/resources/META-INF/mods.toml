@@ -9,7 +9,7 @@ displayName = "MaLiLib"
 displayURL = "https://github.com/maruohon/malilib"
 logoFile = "assets/malilib/icon.png"
 credits = "masa"
-authors = "masa"
+authors = "masa, Shiraishi Sayuki (multiloader port)"
 description = '''
 A library mod required by masa's client-side mods.
 '''

@@ -3,6 +3,7 @@
   "package": "fi.dy.masa.malilib.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
+  "refmap": "malilib.refmap.json",
   "client": [
     "MixinInGameHud",
     "client.MixinMinecraftClient",
@@ -21,7 +22,7 @@
     "render.MixinWorldRenderer",
     "screen.IMixinHandledScreen",
     "screen.MixinChatScreen",
-    "screen.MixinHandledScreen",
+    "MixinHandledScreen",
     "screen.MixinInventoryScreen",
     "server.MixinIntegratedServer",
     "server.MixinMinecraftServer"
@@ -29,5 +30,6 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": []
+  "mixins": [],
+  "server": []
 }

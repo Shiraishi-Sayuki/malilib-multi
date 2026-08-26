@@ -101,7 +101,11 @@ public class ButtonGeneric extends ButtonBase
 
             if (this.renderDefaultBackground)
             {
-                drawContext.drawTexture(this.getTexture(this.hovered), this.x, this.y, 0, 0, this.width, this.height);
+                // 1.20.1 - vanilla widgets.pngのボタン領域(u=0..200, v=46+style*20)を左右半分ずつ描く
+                int buttonStyle = this.getTextureOffset(this.hovered);
+                this.bindTexture(BUTTON_TEXTURES);
+                RenderUtils.drawTexturedRect(this.x, this.y, 0, 46 + buttonStyle * 20, this.width / 2, this.height);
+                RenderUtils.drawTexturedRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + buttonStyle * 20, this.width / 2, this.height);
             }
 
             if (this.icon != null)

@@ -73,15 +73,20 @@ public abstract class GuiConfigsBase extends GuiListBase<ConfigOptionWrapper, Wi
                 MaLiLib.LOGGER.warn("GuiConfigsBase#initGui(): Failed to automatically register [{}]", this.getModId());
                 return;
             }
+
+            // 自動登録直後に取り直す(初回オープンでもスイッチャーを出す)
+            thisMod = Registry.CONFIG_SCREEN.getModInfoFromConfigScreen(this.getClass());
         }
 
         if (thisMod != null && MaLiLibConfigs.Generic.ENABLE_CONFIG_SWITCHER.getBooleanValue())
         {
             // Was: y = 13
+            final ModInfo currentMod = thisMod;
+
             this.modSwitchWidget = new WidgetDropDownList<>(GuiUtils.getScaledWindowWidth() - 155, 6, 130, 18, 200, 10, Registry.CONFIG_SCREEN.getAllModsWithConfigScreens())
             {
                 {
-                    selectedEntry = thisMod;
+                    selectedEntry = currentMod;
                 }
 
                 @Override

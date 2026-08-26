@@ -18,9 +18,8 @@ import fi.dy.masa.malilib.util.StringUtils;
 
 public abstract class ButtonBase extends WidgetBase
 {
-    protected static final Identifier BUTTON_TEXTURE = new Identifier("minecraft", "widget/button");
-    protected static final Identifier BUTTON_DISABLE_TEXTURE = new Identifier("minecraft", "widget/button_disabled");
-    protected static final Identifier BUTTON_HOVER_TEXTURE = new Identifier("minecraft", "widget/button_highlighted");
+    // 1.20.1には1.21の個別スプライトが無いのでvanillaのwidgetsアトラスを使う
+    protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
 
     protected final List<String> hoverStrings = new ArrayList<>();
     protected final ImmutableList<String> hoverHelp;
@@ -159,7 +158,7 @@ public abstract class ButtonBase extends WidgetBase
 
     protected Identifier getTexture(boolean isMouseOver)
     {
-        return (this.enabled == false) ? BUTTON_DISABLE_TEXTURE : (isMouseOver ? BUTTON_HOVER_TEXTURE : BUTTON_TEXTURE);
+        return BUTTON_TEXTURES;
     }
 
     @Override

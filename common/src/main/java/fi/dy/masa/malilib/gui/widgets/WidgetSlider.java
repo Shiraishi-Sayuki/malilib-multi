@@ -9,8 +9,7 @@ import fi.dy.masa.malilib.render.RenderUtils;
 
 public class WidgetSlider extends WidgetBase
 {
-    public static final Identifier BUTTON_TEXTURE = new Identifier("minecraft", "widget/button");
-    public static final Identifier BUTTON_DISABLE_TEXTURE = new Identifier("minecraft", "widget/button_disabled");
+    public static final Identifier VANILLA_WIDGETS = new Identifier("minecraft", "textures/gui/widgets.png");
 
     protected final ISliderCallback callback;
     protected int sliderWidth;
@@ -53,15 +52,18 @@ public class WidgetSlider extends WidgetBase
 
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        drawContext.drawTexture(WidgetSlider.BUTTON_DISABLE_TEXTURE, this.x + 1, this.y, 0, 0, this.width - 3, 20);
+        // 1.20.1 - vanilla widgets.pngからスライダー背景(v=46)とつまみ(v=66)を描く
+        this.bindTexture(VANILLA_WIDGETS);
+        RenderUtils.drawTexturedRect(this.x + 1             , this.y,   0, 46, this.width - 6, 20);
+        RenderUtils.drawTexturedRect(this.x + this.width - 5, this.y, 196, 46,              4, 20);
 
         double relPos = this.callback.getValueRelative();
         int sw = this.sliderWidth;
         int usableWidth = this.width - 4 - sw;
         int s = sw / 2;
 
-
-        drawContext.drawTexture(WidgetSlider.BUTTON_TEXTURE, this.x + 2 + (int) (relPos * usableWidth), this.y, 0, 0, sw, 20);
+        RenderUtils.drawTexturedRect(this.x + 2 + (int) (relPos * usableWidth)    , this.y,       0, 66, s, 20);
+        RenderUtils.drawTexturedRect(this.x + 2 + (int) (relPos * usableWidth) + s, this.y, 200 - s, 66, s, 20);
 
         String str = this.callback.getFormattedDisplayValue();
         int w = this.getStringWidth(str);

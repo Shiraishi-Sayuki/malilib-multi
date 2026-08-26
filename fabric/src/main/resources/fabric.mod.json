@@ -5,7 +5,8 @@
   "version": "${mod_version}",
   "description": "A library mod required by masa's client-side mods",
   "authors": [
-    "masa"
+    "masa",
+    "Shiraishi Sayuki (multiloader port)"
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/malilib",

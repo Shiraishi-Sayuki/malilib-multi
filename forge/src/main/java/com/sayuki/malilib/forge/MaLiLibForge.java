@@ -2,6 +2,8 @@ package com.sayuki.malilib.forge;
 
 import com.sayuki.malilib.MaLiLibCommon;
 import fi.dy.masa.malilib.MaLiLibConfigGui;
+import fi.dy.masa.malilib.registry.Registry;
+import fi.dy.masa.malilib.util.data.ModInfo;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.IExtensionPoint;
@@ -28,6 +30,11 @@ public class MaLiLibForge {
 
             // 共通初期化 - Fabric側と同じ流れでmasaのコードを呼ぶ
             MaLiLibCommon.init();
+
+            // 設定画面スイッチャー用 - Fabric側と同じく正式名で登録する(無いと"Malilib"になる)
+            Registry.CONFIG_SCREEN.registerConfigScreenFactory(
+                    new ModInfo(MaLiLibCommon.MOD_ID, MaLiLibCommon.MOD_NAME, MaLiLibConfigGui::new)
+            );
 
             // 設定画面登録 - ModMenuの代わりにForgeの拡張ポイントで出す
             modContainer.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,

@@ -17,8 +17,7 @@ import fi.dy.masa.malilib.event.InputEventHandler;
 public abstract class MixinMouse
 {
     @Shadow @Final private MinecraftClient client;
-    @Shadow private double eventDeltaHorizontalWheel;
-    @Shadow private double eventDeltaVerticalWheel;
+    @Shadow private double eventDeltaWheel;
 
     @Inject(method = "onCursorPos",
             at = @At(value = "FIELD", target = "Lnet/minecraft/client/Mouse;hasResolutionChanged:Z", ordinal = 0))
@@ -41,8 +40,7 @@ public abstract class MixinMouse
 
         if (((InputEventHandler) InputEventHandler.getInputManager()).onMouseScroll(mouseX, mouseY, xOffset, yOffset, this.client))
         {
-            this.eventDeltaHorizontalWheel = 0.0;
-            this.eventDeltaVerticalWheel = 0.0;
+            this.eventDeltaWheel = 0.0;
             ci.cancel();
         }
     }
