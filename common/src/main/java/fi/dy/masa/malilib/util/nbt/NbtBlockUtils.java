@@ -39,11 +39,12 @@ public class NbtBlockUtils
     {
         if (nbt.contains(NbtKeys.ID, Constants.NBT.TAG_STRING))
         {
-            RegistryEntry<BlockEntityType<?>> entry = Registries.BLOCK_ENTITY_TYPE.getEntry(Identifier.tryParse(nbt.getString(NbtKeys.ID))).orElse(null);
+            // 1.20.1ではgetEntry(Identifier)が無いのでgetOrEmptyで直接引く
+            BlockEntityType<?> type = Registries.BLOCK_ENTITY_TYPE.getOrEmpty(Identifier.tryParse(nbt.getString(NbtKeys.ID))).orElse(null);
 
-            if (entry != null && entry.hasKeyAndValue())
+            if (type != null)
             {
-                return entry.value();
+                return type;
             }
         }
 
@@ -117,7 +118,7 @@ public class NbtBlockUtils
             Identifier id = Identifier.tryParse(nbt.getString(NbtKeys.PRIMARY_EFFECT));
             if (id != null)
             {
-                primary = Registries.STATUS_EFFECT.getEntry(id).orElse(null);
+                primary = Registries.STATUS_EFFECT.getOrEmpty(id).orElse(null);
             }
         }
         if (nbt.contains(NbtKeys.SECONDARY_EFFECT, Constants.NBT.TAG_STRING))
@@ -125,7 +126,7 @@ public class NbtBlockUtils
             Identifier id = Identifier.tryParse(nbt.getString(NbtKeys.SECONDARY_EFFECT));
             if (id != null)
             {
-                secondary = Registries.STATUS_EFFECT.getEntry(id).orElse(null);
+                secondary = Registries.STATUS_EFFECT.getOrEmpty(id).orElse(null);
             }
         }
 
@@ -152,10 +153,6 @@ public class NbtBlockUtils
         if (nbt.contains(NbtKeys.VIBRATION, Constants.NBT.TAG_INT))
         {
             lastFreq = nbt.getInt(NbtKeys.VIBRATION);
-        }
-        if (nbt.contains(NbtKeys.LISTENER, Constants.NBT.TAG_COMPOUND))
-        {
-            Vibrations.ListenerData.CODEC.parse(registry.getOps(NbtOps.INSTANCE), nbt.getCompound(NbtKeys.LISTENER)).resultOrPartial().ifPresent(data::set);
         }
 
         return Pair.of(lastFreq, data.get());
@@ -198,11 +195,11 @@ public class NbtBlockUtils
 
         if (nbt.contains(NbtKeys.FRONT_TEXT))
         {
-            SignText.CODEC.parse(registry.getOps(NbtOps.INSTANCE), nbt.getCompound(NbtKeys.FRONT_TEXT)).resultOrPartial().ifPresent(front::set);
+            SignText.CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(NbtKeys.FRONT_TEXT)).result().ifPresent(front::set);
         }
         if (nbt.contains(NbtKeys.BACK_TEXT))
         {
-            SignText.CODEC.parse(registry.getOps(NbtOps.INSTANCE), nbt.getCompound(NbtKeys.BACK_TEXT)).resultOrPartial().ifPresent(back::set);
+            SignText.CODEC.parse(NbtOps.INSTANCE, nbt.getCompound(NbtKeys.BACK_TEXT)).result().ifPresent(back::set);
         }
         if (nbt.contains(NbtKeys.WAXED))
         {
@@ -226,7 +223,7 @@ public class NbtBlockUtils
 
         if (nbt.contains(NbtKeys.BOOK, Constants.NBT.TAG_COMPOUND))
         {
-            book = ItemStack.fromNbtOrEmpty(registry, nbt.getCompound(NbtKeys.BOOK));
+            book = ItemStack.fromNbt(nbt.getCompound(NbtKeys.BOOK));
         }
         if (nbt.contains(NbtKeys.PAGE, Constants.NBT.TAG_INT))
         {
@@ -259,7 +256,7 @@ public class NbtBlockUtils
 
             for (String key : compound.getKeys())
             {
-                list.put(Identifier.of(key), compound.getInt(key));
+                list.put(new Identifier(key), compound.getInt(key));
             }
         }
 

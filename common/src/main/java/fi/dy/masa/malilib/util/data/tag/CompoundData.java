@@ -413,7 +413,7 @@ public class CompoundData extends BaseData implements DataView
     {
         if (value != null)
         {
-            this.values.put(key, codec.encodeStart(ops, value).getOrThrow());
+            this.values.put(key, codec.encodeStart(ops, value).getOrThrow(false, st -> {}));
         }
 
         return this;
@@ -423,7 +423,7 @@ public class CompoundData extends BaseData implements DataView
 	{
 		if (value != null)
 		{
-			this.values.put(key, DataConverterNbt.fromVanillaNbt(codec.encodeStart(ops, value).getOrThrow()));
+			this.values.put(key, DataConverterNbt.fromVanillaNbt(codec.encodeStart(ops, value).getOrThrow(false, st -> {})));
 		}
 
 		return this;

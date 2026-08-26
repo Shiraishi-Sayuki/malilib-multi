@@ -82,7 +82,8 @@ public class RegistryUtils
     {
         try
         {
-            return registry.get(Registries.BLOCK.getKey()).getEntry(id).orElseThrow();
+            java.util.Optional<Block> v = registry.get(Registries.BLOCK.getKey()).getOrEmpty(id);
+            return v.map(registry.get(Registries.BLOCK.getKey())::getEntry).orElseThrow();
         }
         catch (Exception e)
         {
@@ -101,7 +102,8 @@ public class RegistryUtils
     {
         try
         {
-            return registry.get(Registries.BLOCK_ENTITY_TYPE.getKey()).getEntry(id).orElse(null);
+            java.util.Optional<BlockEntityType<?>> v = registry.get(Registries.BLOCK_ENTITY_TYPE.getKey()).getOrEmpty(id);
+            return v.map(t -> registry.get(Registries.BLOCK_ENTITY_TYPE.getKey()).getEntry(t)).orElse(null);
         }
         catch (Exception e)
         {
@@ -120,7 +122,8 @@ public class RegistryUtils
     {
         try
         {
-            return registry.get(Registries.ENTITY_TYPE.getKey()).getEntry(id).orElse(null);
+            java.util.Optional<EntityType<?>> v = registry.get(Registries.ENTITY_TYPE.getKey()).getOrEmpty(id);
+            return v.map(t -> registry.get(Registries.ENTITY_TYPE.getKey()).getEntry(t)).orElse(null);
         }
             catch (Exception e)
         {

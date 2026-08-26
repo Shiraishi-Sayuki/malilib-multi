@@ -122,7 +122,8 @@ public class WorldUtils
     {
         try
         {
-            return registry.get(RegistryKeys.DIMENSION_TYPE).getEntry(id).orElseThrow();
+            return registry.get(RegistryKeys.DIMENSION_TYPE).getOrEmpty(id)
+                    .map(v -> registry.get(RegistryKeys.DIMENSION_TYPE).getEntry(v)).orElseThrow();
         }
         catch (Exception e)
         {
@@ -141,7 +142,8 @@ public class WorldUtils
     {
         try
         {
-            return registry.get(RegistryKeys.DIMENSION_TYPE).getEntry(Identifier.tryParse(id)).orElseThrow();
+            return registry.get(RegistryKeys.DIMENSION_TYPE).getOrEmpty(Identifier.tryParse(id))
+                    .map(v -> registry.get(RegistryKeys.DIMENSION_TYPE).getEntry(v)).orElseThrow();
         }
         catch (Exception e)
         {
@@ -179,7 +181,8 @@ public class WorldUtils
     {
         try
         {
-            return registry.get(RegistryKeys.BIOME).getEntry(id).orElseThrow();
+            return registry.get(RegistryKeys.BIOME).getOrEmpty(id)
+                    .map(v -> registry.get(RegistryKeys.BIOME).getEntry(v)).orElseThrow();
         }
         catch (Exception e)
         {
@@ -198,7 +201,8 @@ public class WorldUtils
     {
         try
         {
-            return registry.get(RegistryKeys.BIOME).getEntry(Identifier.tryParse(id)).orElseThrow();
+            return registry.get(RegistryKeys.BIOME).getOrEmpty(Identifier.tryParse(id))
+                    .map(v -> registry.get(RegistryKeys.BIOME).getEntry(v)).orElseThrow();
         }
         catch (Exception e)
         {

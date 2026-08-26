@@ -520,7 +520,12 @@ public class InventoryUtils
             }
         }
 
-        return net.minecraft.util.collection.DefaultedList.copyOf(items.iterator());
+        net.minecraft.util.collection.DefaultedList<net.minecraft.item.ItemStack> dl =
+                net.minecraft.util.collection.DefaultedList.ofSize(items.size(), net.minecraft.item.ItemStack.EMPTY);
+
+        for (int i = 0; i < items.size(); ++i) { dl.set(i, items.get(i)); }
+
+        return dl;
     }
 
     // 村人の取引リスト(TradeOfferList)から売り商品を取り出す
@@ -536,6 +541,11 @@ public class InventoryUtils
             }
         }
 
-        return net.minecraft.util.collection.DefaultedList.copyOf(items.iterator());
+        net.minecraft.util.collection.DefaultedList<net.minecraft.item.ItemStack> dl =
+                net.minecraft.util.collection.DefaultedList.ofSize(items.size(), net.minecraft.item.ItemStack.EMPTY);
+
+        for (int i = 0; i < items.size(); ++i) { dl.set(i, items.get(i)); }
+
+        return dl;
     }
 }

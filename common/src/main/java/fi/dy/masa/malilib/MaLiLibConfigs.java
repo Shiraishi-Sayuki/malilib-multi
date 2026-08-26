@@ -130,12 +130,6 @@ public class MaLiLibConfigs implements IConfigHandler
                 ConfigUtils.readConfigBase(root, "Generic", Generic.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Debug", Debug.OPTIONS);
 
-                if (MaLiLibReference.DEBUG_MODE)
-                {
-                    ConfigUtils.readConfigBase(root, "Test", Test.OPTIONS);
-                    ConfigUtils.readHotkeyToggleOptions(root, "TestEnumHotkeys", "TestEnumToggles", ConfigTestEnum.VALUES);
-                }
-
                 if (MaLiLibReference.EXPERIMENTAL_MODE)
                 {
                     ConfigUtils.readConfigBase(root, "Experimental", Experimental.OPTIONS);
@@ -172,12 +166,6 @@ public class MaLiLibConfigs implements IConfigHandler
 
             ConfigUtils.writeConfigBase(root, "Generic", Generic.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Debug", Debug.OPTIONS);
-
-            if (MaLiLibReference.DEBUG_MODE)
-            {
-                ConfigUtils.writeConfigBase(root, "Test", Test.OPTIONS);
-                ConfigUtils.writeHotkeyToggleOptions(root, "TestEnumHotkeys", "TestEnumToggles", ConfigTestEnum.VALUES);
-            }
 
             if (MaLiLibReference.EXPERIMENTAL_MODE)
             {

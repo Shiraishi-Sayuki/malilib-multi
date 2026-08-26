@@ -393,13 +393,13 @@ public class NbtUtils
 	@Nullable
 	public static NbtCompound readNbtFromFile(@Nonnull File file)
 	{
-		return readNbtFromFile(file, NbtSizeTracker.ofUnlimitedBytes());
+		return readNbtFromFile(file, new NbtTagSizeTracker(0L));
 	}
 
 	@Nullable
 	public static NbtCompound readNbtFromFileAsPath(@Nonnull Path file)
 	{
-		return readNbtFromFileAsPath(file, NbtSizeTracker.ofUnlimitedBytes());
+		return readNbtFromFileAsPath(file, new NbtTagSizeTracker(0L));
 	}
 
 	@Deprecated(forRemoval = true)
@@ -429,7 +429,8 @@ public class NbtUtils
 		{
 			try
 			{
-				nbt = NbtIo.readCompressed(is, tracker);
+				// 1.20.1のNbtIoにtracker版は無い
+				nbt = NbtIo.readCompressed(is);
 			}
 			catch (Exception e)
 			{
@@ -437,7 +438,7 @@ public class NbtUtils
 				{
 					is.close();
 					is = new FileInputStream(file);
-					nbt = NbtIo.read(file.toPath());
+					nbt = NbtIo.read(file);
 				}
 				catch (Exception ignore)
 				{
@@ -471,7 +472,7 @@ public class NbtUtils
 
 		try
 		{
-			return NbtIo.readCompressed(Files.newInputStream(file), tracker);
+			return NbtIo.readCompressed(Files.newInputStream(file));
 		}
 		catch (Exception e)
 		{
@@ -500,7 +501,7 @@ public class NbtUtils
 	{
 		try
 		{
-			NbtIo.writeCompressed(tag, file);
+			NbtIo.writeCompressed(tag, file.toFile());
 		}
 		catch (Exception err)
 		{

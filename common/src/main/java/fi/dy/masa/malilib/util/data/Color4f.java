@@ -118,7 +118,8 @@ public class Color4f
 
     public int toVanillaArgb()
     {
-        return ColorHelper.Argb.fromFloats(this.a, this.r, this.g, this.b);
+        // 1.20.1にはfromFloatsが無いので手動で詰める
+        return ColorHelper.Argb.getArgb((int) (this.a * 255.0f), (int) (this.r * 255.0f), (int) (this.g * 255.0f), (int) (this.b * 255.0f));
     }
 
     @Override

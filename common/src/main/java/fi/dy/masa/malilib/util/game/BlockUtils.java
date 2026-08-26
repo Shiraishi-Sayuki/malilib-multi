@@ -256,22 +256,9 @@ public class BlockUtils
                     {
                         key = "malilib.label.block_state_properties.direction";
                     }
-                    else if (prop instanceof EnumProperty<?> enumProperty)
+                    else if (prop instanceof EnumProperty<?>)
                     {
-                        if (enumProperty.getType().equals(Orientation.class))
-                        {
-                            key = "malilib.label.block_state_properties.orientation";
-                        }
-                        /*
-                        else if (enumProperty.getType().equals(Direction.class))
-                        {
-                            key = "malilib.label.block_state_properties.direction";
-                        }
-                         */
-                        else
-                        {
-                            key = "malilib.label.block_state_properties.enum";
-                        }
+                        key = "malilib.label.block_state_properties.enum";
                     }
                     else if (prop instanceof IntProperty)
                     {
@@ -419,9 +406,12 @@ public class BlockUtils
      */
     public static void setStackNbt(@Nonnull ItemStack stack, @Nonnull BlockEntity be, @Nonnull DynamicRegistryManager registry)
     {
-        // 1.20.1ではBlockEntityのNBTを直接ItemStackに書き込む
-        NbtCompound nbt = new NbtCompound();
-        be.writeNbt(nbt);
+        // 1.20.1ではwriteNbtはprotected、createNbt()を使ってid/座標を除く
+        NbtCompound nbt = be.createNbt();
+        nbt.remove("id");
+        nbt.remove("x");
+        nbt.remove("y");
+        nbt.remove("z");
         stack.setSubNbt("BlockEntityTag", nbt);
     }
 

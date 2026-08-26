@@ -33,9 +33,16 @@ public class RayTraceUtils
 
     public static HitResult getRayTraceFromEntity(World world, Entity entity, RaycastContext.FluidHandling fluidHandling)
     {
-        return getRayTraceFromEntity(world, entity, fluidHandling, true, entity instanceof PlayerEntity pe ? pe.getBlockInteractionRange() + 1.0d : 5.0d);
+        return getRayTraceFromEntity(world, entity, fluidHandling, true, getReachDistance());
     }
 
+
+    private static double getReachDistance()
+    {
+        // 1.20.1にはPlayerEntity.getBlockInteractionRange()が無いのでinteractionManager経由
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        return mc.interactionManager != null ? mc.interactionManager.getReachDistance() + 1.0d : 5.0d;
+    }
     /**
      * Get a ray trace from the point of view of the given entity (along its look vector)
      * @param world the world in which the ray trace is performed

@@ -274,7 +274,7 @@ public class StringUtils
                 // This used to be just MinecraftServer::getLevelName().
                 // Getting the name would now require an @Accessor for MinecraftServer.field_23784
                 String name = server.getSaveProperties().getLevelName();
-                return FileUtils.generateSimpleSafeFileName(name); 
+                return FileNameUtils.generateSimpleSafeFileName(name); 
             }
         }
         else

@@ -518,12 +518,8 @@ public class DataTypeUtils
 		DynamicOps<NbtElement> ops = NbtOps.INSTANCE;
 		NbtCompound nbt = DataConverterNbt.toVanillaCompound(data);
 
-		return switch (ops.getMap(nbt).flatMap(map -> mapCodec.decode(ops, map)))
-		{
-			case DataResult.Success<T> result -> Optional.of(result.value());
-			case DataResult.Error<T> error -> error.partialValue();
-			default -> Optional.empty();
-		};
+		// DFU6にはSuccess/Errorが無いのでresult()で受ける
+		return ops.getMap(nbt).flatMap(map -> mapCodec.decode(ops, map)).result();
 	}
 
 	/**
@@ -538,11 +534,7 @@ public class DataTypeUtils
 		DynamicOps<NbtElement> ops = NbtOps.INSTANCE;
 		NbtCompound nbt = new NbtCompound();
 
-		switch (mapCodec.encoder().encodeStart(ops, value))
-		{
-			case DataResult.Success<NbtElement> result -> nbt.copyFrom((NbtCompound) result.value());
-			case DataResult.Error<NbtElement> error -> error.partialValue().ifPresent(partial -> nbt.copyFrom((NbtCompound) partial));
-		}
+		mapCodec.encoder().encodeStart(ops, value).result().ifPresent(el -> nbt.copyFrom((NbtCompound) el));
 
 		return DataConverterNbt.fromVanillaCompound(nbt);
 	}

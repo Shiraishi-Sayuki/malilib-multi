@@ -91,12 +91,8 @@ public class DataOps implements DynamicOps<BaseData>
 	{
 		DataResult<Number> result = this.getNumberValue(data);
 
-		if (result.hasResultOrPartial())
-		{
-			return result.getPartialOrThrow();
-		}
-
-		return defaultValue;
+		// DFU6にはhasResultOrPartial/getPartialOrThrowが無い
+		return result.result().orElse(defaultValue);
 	}
 
 	@Override
@@ -408,7 +404,7 @@ public class DataOps implements DynamicOps<BaseData>
 	@Override
 	public BaseData createList(Stream<BaseData> stream)
 	{
-		return new ListData((ArrayList<BaseData>) stream.collect(Util.toArrayList()));
+		return new ListData(stream.collect(java.util.stream.Collectors.toCollection(ArrayList::new)));
 	}
 
 	@Override

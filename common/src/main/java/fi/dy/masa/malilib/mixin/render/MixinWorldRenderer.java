@@ -1,6 +1,8 @@
 package fi.dy.masa.malilib.mixin.render;
 
 import org.joml.Matrix4f;
+
+import net.minecraft.client.util.math.MatrixStack;
 import org.objectweb.asm.Opcodes;
 
 import net.minecraft.client.MinecraftClient;
@@ -25,9 +27,9 @@ public abstract class MixinWorldRenderer
     @Inject(method = "render",
             at = @At(value = "INVOKE", ordinal = 1,
                      target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V"))
-    private void onRenderWorldLastNormal(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    private void onRenderWorldLastNormal(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci)
     {
-        ((RenderEventHandler) RenderEventHandler.getInstance()).onRenderWorldLast(matrix4f, matrix4f2, this.client);
+        ((RenderEventHandler) RenderEventHandler.getInstance()).onRenderWorldLast(matrices, projectionMatrix, this.client);
     }
 
     @Inject(method = "render",
@@ -37,9 +39,9 @@ public abstract class MixinWorldRenderer
                                      target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V")),
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/gl/PostEffectProcessor;render(F)V"))
-    private void onRenderWorldLastFabulous(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci)
+    private void onRenderWorldLastFabulous(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci)
     {
-        ((RenderEventHandler) RenderEventHandler.getInstance()).onRenderWorldLast(matrix4f, matrix4f2, this.client);
+        ((RenderEventHandler) RenderEventHandler.getInstance()).onRenderWorldLast(matrices, projectionMatrix, this.client);
     }
 
     @Inject(method = "reload()V", at = @At("HEAD"))

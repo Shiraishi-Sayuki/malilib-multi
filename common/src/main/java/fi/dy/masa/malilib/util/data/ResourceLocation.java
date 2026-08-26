@@ -25,7 +25,7 @@ public class ResourceLocation
 
     public ResourceLocation(String str)
     {
-        this.id = Identifier.of(str);
+        this.id = new Identifier(str);
     }
 
     public ResourceLocation(String name, String path)

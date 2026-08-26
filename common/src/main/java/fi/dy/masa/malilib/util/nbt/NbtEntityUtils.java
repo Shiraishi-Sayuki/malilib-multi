@@ -247,12 +247,12 @@ public class NbtEntityUtils
         {
             if (nbtIn != null)
             {
-                nbtIn.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString((net.minecraft.text.Text) name));
+                nbtIn.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJson(name));
                 return nbtIn;
             }
             else
             {
-                nbt.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString((net.minecraft.text.Text) name));
+                nbt.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJson(name));
             }
         }
         catch (Exception ignored) {}
@@ -411,14 +411,10 @@ public class NbtEntityUtils
      */
     public static @Nullable TradeOfferList getTradeOffersFromNbt(@Nonnull NbtCompound nbt, @Nonnull DynamicRegistryManager registry)
     {
-        if (nbt.contains(NbtKeys.OFFERS))
+        // 1.20.1ではCODECが無いのでコンストラクタで直接読む
+        if (nbt.contains(NbtKeys.OFFERS, Constants.NBT.TAG_COMPOUND))
         {
-            Optional<TradeOfferList> opt = TradeOfferList.CODEC.parse(registry.getOps(NbtOps.INSTANCE), nbt.get(NbtKeys.OFFERS)).resultOrPartial();
-
-            if (opt.isPresent())
-            {
-                return opt.get();
-            }
+            return new TradeOfferList(nbt.getCompound(NbtKeys.OFFERS));
         }
 
         return null;
@@ -434,7 +430,7 @@ public class NbtEntityUtils
     {
         if (nbt.contains(NbtKeys.VILLAGER, Constants.NBT.TAG_COMPOUND))
         {
-            Optional<VillagerData> opt = VillagerData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, nbt.get(NbtKeys.VILLAGER))).resultOrPartial();
+            Optional<VillagerData> opt = VillagerData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, nbt.get(NbtKeys.VILLAGER))).result();
 
             if (opt.isPresent())
             {
@@ -514,11 +510,13 @@ public class NbtEntityUtils
      * @param registry (registry)
      * @return ()
      */
-    public static RegistryEntry.Reference<EntityType<?>> getEntityTypeEntry(Identifier id, @Nonnull DynamicRegistryManager registry)
+    public static RegistryEntry<EntityType<?>> getEntityTypeEntry(Identifier id, @Nonnull DynamicRegistryManager registry)
     {
         try
         {
-            return registry.getOptional(Registries.ENTITY_TYPE.getKey()).flatMap(optional -> optional.getEntry(id)).orElse(null);
+            // 1.20.1ではgetEntry(Identifier)が無いのでgetOrEmpty->getEntry(T)で包む
+            EntityType<?> type = Registries.ENTITY_TYPE.getOrEmpty(id).orElse(null);
+            return type != null ? Registries.ENTITY_TYPE.getEntry(type) : null;
         }
         catch (Exception e)
         {
@@ -542,12 +540,9 @@ public class NbtEntityUtils
         }
         else if (nbt.contains(NbtKeys.LEASH, Constants.NBT.TAG_INT_ARRAY))
         {
-            Either<UUID, BlockPos> either = (Either) NbtHelper.toBlockPos(nbt, NbtKeys.LEASH).map(Either::right).orElse(null);
-
-            if (either != null)
-            {
-                return new EntityUtils.FakeLeashData(-1, null, either);
-            }
+            // 1.20.1のNbtHelper.toBlockPosはOptionalではなくBlockPosを返す
+            BlockPos leashedTo = NbtHelper.toBlockPos(nbt.getCompound(NbtKeys.LEASH));
+            return new EntityUtils.FakeLeashData(-1, null, Either.right(leashedTo));
         }
 
         return data;
@@ -615,9 +610,10 @@ public class NbtEntityUtils
         {
             facing = Direction.fromHorizontal(nbt.getByte(NbtKeys.FACING));
         }
-        if (nbt.contains(NbtKeys.VARIANT, Constants.NBT.TAG_COMPOUND))
+        if (nbt.contains(PaintingEntity.VARIANT_NBT_KEY))
         {
-            variant = PaintingEntity.VARIANT_ENTRY_CODEC.parse(registry.getOps(NbtOps.INSTANCE), nbt).resultOrPartial().orElse(null);
+            // 1.20.1のvanillaリーダーを使う
+            variant = PaintingEntity.readVariantFromNbt(nbt).orElse(null);
         }
 
         return Pair.of(facing, variant != null ? variant.value() : null);
@@ -678,22 +674,19 @@ public class NbtEntityUtils
      * @param nbt ()
      * @return ()
      */
-    public static @Nullable RegistryKey<FrogVariant> getFrogVariantFromNbt(@Nonnull NbtCompound nbt)
+    public static @Nullable FrogVariant getFrogVariantFromNbt(@Nonnull NbtCompound nbt)
     {
+        // 1.20.1のFrogVariantはRecord定数なので文字列から直接引く
         if (nbt.contains(NbtKeys.VARIANT, Constants.NBT.TAG_STRING))
         {
-            RegistryKey<FrogVariant> variantKey = RegistryKey.of(RegistryKeys.FROG_VARIANT, Identifier.tryParse(nbt.getString(NbtKeys.VARIANT)));
+            String name = nbt.getString(NbtKeys.VARIANT);
 
-            if (variantKey == null)
-            {
-                variantKey = FrogVariant.TEMPERATE;
-            }
-
-            return variantKey;
+            if (name.contains("warm")) { return FrogVariant.WARM; }
+            if (name.contains("cold")) { return FrogVariant.COLD; }
+            return FrogVariant.TEMPERATE;
         }
 
-        return null;
-    }
+        return null;}
 
     /**
      * Get a Horse's Variant (Color, Markings) from NBT.

@@ -120,7 +120,7 @@ public class ClientPacketChannelHandler implements IClientPacketChannelHandler
         }
         else
         {
-            MaLiLib.logger.warn("Failed to send register channel packet - network handler was null");
+            MaLiLib.LOGGER.warn("Failed to send register channel packet - network handler was null");
         }
     }
 }

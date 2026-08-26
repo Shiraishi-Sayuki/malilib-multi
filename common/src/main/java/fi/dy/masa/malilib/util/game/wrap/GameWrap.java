@@ -111,7 +111,8 @@ public class GameWrap
 
         if (getClientPlayer() != null)
         {
-            return getClientPlayer().getBlockInteractionRange();
+            // 1.20.1: interactionManager経由
+            return getClient().interactionManager != null ? getClient().interactionManager.getReachDistance() : 4.5d;
         }
 
         return 4.5d;
@@ -211,7 +212,7 @@ public class GameWrap
     public static String getPlayerName()
     {
         Entity player = getClientPlayer();
-        return player != null ? player.getName().getLiteralString() : "?";
+        return player != null ? player.getName().getString() : "?";
     }
 
     public static HitResult getHitResult()
@@ -302,7 +303,7 @@ public class GameWrap
     public static void openFile(Path file)
     {
         //OpenGlHelper.openFile(file.toFile());
-        Util.getOperatingSystem().open(file);
+        Util.getOperatingSystem().open(file.toFile());
     }
 
     @Nullable
