@@ -1152,7 +1152,7 @@ public static void setVillagerBackgroundTintColor(VillagerData data, boolean use
 
             if (dye != null)
             {
-                final float[] colors = dye.getColorComponents(new float[3]);
+                final float[] colors = dye.getColorComponents();
                 color(colors[0], colors[1], colors[2], 1f);
                 return;
             }

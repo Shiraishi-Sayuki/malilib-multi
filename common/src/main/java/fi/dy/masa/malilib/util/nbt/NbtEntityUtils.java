@@ -58,12 +58,8 @@ public class NbtEntityUtils
     {
         if (nbt.contains(NbtKeys.ID, Constants.NBT.TAG_STRING))
         {
-            RegistryEntry<EntityType<?>> entry = Registries.ENTITY_TYPE.getEntry(Identifier.tryParse(nbt.getString(NbtKeys.ID))).orElse(null);
-
-            if (entry != null && entry.hasKeyAndValue())
-            {
-                return entry.value();
-            }
+            // 1.20.1ではgetEntry(Identifier)が無いのでget()で直接引く
+            return Registries.ENTITY_TYPE.get(Identifier.tryParse(nbt.getString(NbtKeys.ID)));
         }
 
         return null;
@@ -118,7 +114,7 @@ public class NbtEntityUtils
         return null;
     }
 
-    public static double getAttributeBaseValueFromNbt(@Nonnull NbtCompound nbt, RegistryEntry<EntityAttribute> attribute)
+    public static double getAttributeBaseValueFromNbt(@Nonnull NbtCompound nbt, EntityAttribute attribute)
     {
         AttributeContainer attributes = getAttributesFromNbt(nbt);
 
@@ -136,7 +132,7 @@ public class NbtEntityUtils
      * @param attribute ()
      * @return ()
      */
-    public static double getAttributeValueFromNbt(@Nonnull NbtCompound nbt, RegistryEntry<EntityAttribute> attribute)
+    public static double getAttributeValueFromNbt(@Nonnull NbtCompound nbt, EntityAttribute attribute)
     {
         AttributeContainer attributes = getAttributesFromNbt(nbt);
 
@@ -189,7 +185,8 @@ public class NbtEntityUtils
         if (container != null)
         {
             moveSpeed = container.getValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-            jumpStrength = container.getValue(EntityAttributes.GENERIC_JUMP_STRENGTH);
+            // 1.20.1にはGENERIC_JUMP_STRENGTHが無いのでデフォルト値のまま
+            jumpStrength = -1;
         }
 
         return Pair.of(moveSpeed, jumpStrength);
@@ -226,7 +223,7 @@ public class NbtEntityUtils
 
             try
             {
-                return Text.Serialization.fromJson(string, registry);
+                return net.minecraft.text.Text.Serializer.fromJson(string);
             }
             catch (Exception ignored) { }
         }
@@ -250,12 +247,12 @@ public class NbtEntityUtils
         {
             if (nbtIn != null)
             {
-                nbtIn.putString(NbtKeys.CUSTOM_NAME, Text.Serialization.toJsonString(name, registry));
+                nbtIn.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString(name));
                 return nbtIn;
             }
             else
             {
-                nbt.putString(NbtKeys.CUSTOM_NAME, Text.Serialization.toJsonString(name, registry));
+                nbt.putString(NbtKeys.CUSTOM_NAME, net.minecraft.text.Text.Serializer.toJsonString(name));
             }
         }
         catch (Exception ignored) {}
@@ -284,7 +281,8 @@ public class NbtEntityUtils
 
                 if (instance != null)
                 {
-                    statusEffects.put(instance.getEffectType(), instance);
+                    // 1.20.1: getEffectType() returns plain StatusEffect, so this map stays as-is
+            statusEffects.put(instance.getEffectType(), instance);
                 }
             }
         }
@@ -309,7 +307,7 @@ public class NbtEntityUtils
 
             for (int i = 0; i < list.size(); i++)
             {
-                list.set(i, ItemStack.fromNbtOrEmpty(registry, nbtList.getCompound(i)));
+                list.set(i, ItemStack.fromNbt(nbtList.getCompound(i)));
             }
         }
 
@@ -333,7 +331,7 @@ public class NbtEntityUtils
 
             for (int i = 0; i < list.size(); i++)
             {
-                list.set(i, ItemStack.fromNbtOrEmpty(registry, nbtList.getCompound(i)));
+                list.set(i, ItemStack.fromNbt(nbtList.getCompound(i)));
             }
         }
 
@@ -351,7 +349,7 @@ public class NbtEntityUtils
     {
         if (nbt.contains(NbtKeys.BODY_ARMOR, Constants.NBT.TAG_COMPOUND))
         {
-            return ItemStack.fromNbtOrEmpty(registry, nbt.getCompound(NbtKeys.BODY_ARMOR));
+            return ItemStack.fromNbt(nbt.getCompound(NbtKeys.BODY_ARMOR));
         }
 
         return ItemStack.EMPTY;
@@ -375,7 +373,7 @@ public class NbtEntityUtils
         }
         if (nbt.contains(NbtKeys.SADDLE, Constants.NBT.TAG_COMPOUND))
         {
-            saddle = ItemStack.fromNbtOrEmpty(registry, nbt.getCompound(NbtKeys.SADDLE));
+            saddle = ItemStack.fromNbt(nbt.getCompound(NbtKeys.SADDLE));
         }
 
         return Pair.of(owner, saddle);
