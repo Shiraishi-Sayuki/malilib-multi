@@ -10,8 +10,6 @@ import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.interfaces.IInitializationHandler;
 import fi.dy.masa.malilib.interfaces.IRenderer;
-import fi.dy.masa.malilib.test.TestCommand;
-import fi.dy.masa.malilib.test.TestInputHandler;
 
 public class MaLiLibInitHandler implements IInitializationHandler
 {
@@ -25,7 +23,6 @@ public class MaLiLibInitHandler implements IInitializationHandler
 
         if (MaLiLibReference.DEBUG_MODE)
         {
-            InputEventHandler.getKeybindManager().registerKeybindProvider(TestInputHandler.getInstance());
             //RenderEventHandler.getInstance().registerWorldPreWeatherRenderer(renderer);
             RenderEventHandler.getInstance().registerWorldLastRenderer(renderer);
 

@@ -10,13 +10,11 @@ import fi.dy.masa.malilib.gui.GuiConfigsBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
-import fi.dy.masa.malilib.test.ConfigTestEnum;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class MaLiLibConfigGui extends GuiConfigsBase
 {
     private static ConfigGuiTab tab = ConfigGuiTab.GENERIC;
-    public static ImmutableList<ConfigTestEnum> TEST_ENUM_LIST = ConfigTestEnum.VALUES;
 
     public MaLiLibConfigGui()
     {
@@ -37,7 +35,6 @@ public class MaLiLibConfigGui extends GuiConfigsBase
         {
             if (!MaLiLibReference.DEBUG_MODE)
             {
-                if (tab == ConfigGuiTab.TEST || tab == ConfigGuiTab.TEST_ENUM)
                 {
                     continue;
                 }
@@ -95,10 +92,6 @@ public class MaLiLibConfigGui extends GuiConfigsBase
         {
             configs = MaLiLibConfigs.Test.OPTIONS;
         }
-        else if (tab == ConfigGuiTab.TEST_ENUM && MaLiLibReference.DEBUG_MODE)
-        {
-            return ConfigOptionWrapper.createFor(TEST_ENUM_LIST.stream().map(this::wrapConfig).toList());
-        }
         else if (tab == ConfigGuiTab.EXPERIMENTAL && MaLiLibReference.EXPERIMENTAL_MODE)
         {
             configs = MaLiLibConfigs.Experimental.OPTIONS;
@@ -111,10 +104,6 @@ public class MaLiLibConfigGui extends GuiConfigsBase
         return ConfigOptionWrapper.createFor(configs);
     }
 
-    protected BooleanHotkeyGuiWrapper wrapConfig(ConfigTestEnum config)
-    {
-        return new BooleanHotkeyGuiWrapper(config.getName(), config, config.getKeybind());
-    }
 
     private static class ButtonListener implements IButtonActionListener
     {
@@ -142,8 +131,7 @@ public class MaLiLibConfigGui extends GuiConfigsBase
     {
         GENERIC      ("malilib.gui.title.generic"),
         DEBUG        ("malilib.gui.title.debug"),
-        TEST         ("malilib.gui.title.test"),
-        TEST_ENUM    ("malilib.gui.title.test_enum"),
+
         EXPERIMENTAL ("malilib.gui.title.experimental");
 
         private final String translationKey;
