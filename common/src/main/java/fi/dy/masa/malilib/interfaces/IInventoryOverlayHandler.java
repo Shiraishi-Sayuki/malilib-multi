@@ -33,13 +33,11 @@ public interface IInventoryOverlayHandler
      * Return your ServerDataSyncer Instance.
      * @return ()
      */
-    IDataSyncer getDataSyncer();
 
     /**
      * Manually change a Built-In Data Syncer.
      * @param syncer ()
      */
-    void setDataSyncer(IDataSyncer syncer);
 
     /**
      * Return your Inventory.Overlay Refresh Handler.
@@ -130,13 +128,13 @@ public interface IInventoryOverlayHandler
      * @param pos ()
      * @return ()
      */
+    // 1.20.1ポート - DataSyncer(1.21のservux連携)は無いので直接BlockEntityを読む
+    // ダブルチェストの場合は隣のチェスト側を返す
     @Nullable
     default Pair<BlockEntity, NbtCompound> requestBlockEntityAt(World world, BlockPos pos)
     {
         if (!(world instanceof ServerWorld))
         {
-            Pair<BlockEntity, NbtCompound> pair = this.getDataSyncer().requestBlockEntity(world, pos);
-
             BlockState state = world.getBlockState(pos);
 
             if (state.getBlock() instanceof ChestBlock)
@@ -145,11 +143,13 @@ public interface IInventoryOverlayHandler
 
                 if (type != ChestType.SINGLE)
                 {
-                    return this.getDataSyncer().requestBlockEntity(world, pos.offset(ChestBlock.getFacing(state)));
+                    BlockEntity be = world.getBlockEntity(pos.offset(ChestBlock.getFacing(state)));
+                    return be != null ? Pair.of(be, null) : null;
                 }
             }
 
-            return pair;
+            BlockEntity be = world.getBlockEntity(pos);
+            return be != null ? Pair.of(be, null) : null;
         }
 
         return null;

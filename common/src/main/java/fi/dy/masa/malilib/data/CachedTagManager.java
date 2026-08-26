@@ -182,7 +182,7 @@ public class CachedTagManager
         list.add("#"+BlockTags.CANDLE_CAKES.id().toString());
         list.add("#"+BlockTags.CANDLES.id().toString());
         list.add("#"+BlockTags.CEILING_HANGING_SIGNS.id().toString());
-        list.add("#"+BlockTags.CONCRETE_POWDER.id().toString());
+        list.add("#"+fi.dy.masa.malilib.data.MaLiLibTag.Blocks.CONCRETE_POWDER.id().toString());
         list.add("#"+BlockTags.CORAL_PLANTS.id().toString());
         list.add("#"+BlockTags.DOORS.id().toString());
         list.add("#"+BlockTags.FENCE_GATES.id().toString());

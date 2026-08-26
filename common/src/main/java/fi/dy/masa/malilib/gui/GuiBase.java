@@ -216,39 +216,30 @@ public abstract class GuiBase extends Screen implements IMessageConsumer, IStrin
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount)
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount)
     {
-        if (this.mouseWheelHorizontalDeltaSum != 0.0 &&
-            Math.signum(horizontalAmount) != Math.signum(this.mouseWheelHorizontalDeltaSum))
-        {
-            this.mouseWheelHorizontalDeltaSum = 0.0;
-        }
-
+        // 1.20.1ではスクロール引数が1つだけ、横スクロールは未サポート扱い
         if (this.mouseWheelVerticalDeltaSum != 0.0 &&
-            Math.signum(verticalAmount) != Math.signum(this.mouseWheelVerticalDeltaSum))
+            Math.signum(amount) != Math.signum(this.mouseWheelVerticalDeltaSum))
         {
             this.mouseWheelVerticalDeltaSum = 0.0;
         }
 
-        this.mouseWheelHorizontalDeltaSum += horizontalAmount;
-        this.mouseWheelVerticalDeltaSum += verticalAmount;
+        this.mouseWheelVerticalDeltaSum += amount;
 
-        horizontalAmount = (int) this.mouseWheelHorizontalDeltaSum;
-        verticalAmount = (int) this.mouseWheelVerticalDeltaSum;
+        double verticalAmount = (int) this.mouseWheelVerticalDeltaSum;
 
-        if (horizontalAmount != 0.0 || verticalAmount != 0.0)
+        if (verticalAmount != 0.0)
         {
-            this.mouseWheelHorizontalDeltaSum -= horizontalAmount;
             this.mouseWheelVerticalDeltaSum -= verticalAmount;
 
-            if (this.onMouseScrolled((int) mouseX, (int) mouseY, horizontalAmount, verticalAmount))
+            if (this.onMouseScrolled((int) mouseX, (int) mouseY, 0, (int) verticalAmount))
             {
                 return true;
             }
         }
 
-        // 1.20.1ではscroll引数が1つ(horizontal+verticalを合算)
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount + verticalAmount);
+        return super.mouseScrolled(mouseX, mouseY, amount);
     }
 
     @Override

@@ -432,7 +432,7 @@ public class CachedBlockTags
 
             this.blocks.forEach(
                     (entry) ->
-                            list.add(entry.getIdAsString())
+                            list.add(entry.getKey().map(k -> k.getValue().toString()).orElse(""))
             );
             this.tags.forEach(
                     (entry) ->
@@ -448,7 +448,7 @@ public class CachedBlockTags
 
             this.blocks.forEach(
                     (entry) ->
-                            arr.add(new JsonPrimitive(entry.getIdAsString()))
+                            arr.add(new JsonPrimitive(entry.getKey().map(k -> k.getValue().toString()).orElse("")))
             );
             this.tags.forEach(
                     (entry) ->

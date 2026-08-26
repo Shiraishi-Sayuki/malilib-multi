@@ -115,8 +115,8 @@ public class InventoryOverlay
     {
         RenderUtils.setupBlend();
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-        BuiltBuffer builtBuffer;
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.applyModelViewMatrix();
@@ -219,9 +219,7 @@ public class InventoryOverlay
 
         try
         {
-            builtBuffer = buffer.end();
-            BufferRenderer.drawWithGlobalProgram(builtBuffer);
-            builtBuffer.close();
+            tessellator.draw();
         }
         catch (Exception ignored) { }
     }
@@ -344,8 +342,8 @@ public class InventoryOverlay
         RenderUtils.color(1f, 1f, 1f, 1f);
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-        BuiltBuffer builtBuffer;
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.applyModelViewMatrix();
@@ -368,9 +366,7 @@ public class InventoryOverlay
 
         try
         {
-            builtBuffer = buffer.end();
-            BufferRenderer.drawWithGlobalProgram(builtBuffer);
-            builtBuffer.close();
+            tessellator.draw();
         }
         catch (Exception ignored) { }
 
@@ -476,7 +472,7 @@ public class InventoryOverlay
 
             if (block instanceof ShulkerBoxBlock || block instanceof ChestBlock || block instanceof BarrelBlock)
             {
-                size = nbt != null ? nbt.getList("Items").size() : 27;
+                size = nbt != null ? nbt.getList("Items", Constants.NBT.TAG_COMPOUND).size() : 27;
 
                 // For "Double Inventory" Barrels, etc.
                 if (size >= 0 && size <= 27)
@@ -507,10 +503,6 @@ public class InventoryOverlay
             else if (block instanceof BrewingStandBlock)
             {
                 return InventoryRenderType.BREWING_STAND;
-            }
-            else if (block instanceof CrafterBlock)
-            {
-                return InventoryRenderType.CRAFTER;
             }
             else if (block instanceof DecoratedPotBlock || block instanceof JukeboxBlock || block instanceof LecternBlock)
             {
@@ -579,10 +571,6 @@ public class InventoryOverlay
             else if (blockType.equals(BlockEntityType.BREWING_STAND))
             {
                 return InventoryRenderType.BREWING_STAND;
-            }
-            else if (blockType.equals(BlockEntityType.CRAFTER))
-            {
-                return InventoryRenderType.CRAFTER;
             }
             else if (blockType.equals(BlockEntityType.DECORATED_POT) ||
                     blockType.equals(BlockEntityType.JUKEBOX) ||
@@ -1088,7 +1076,7 @@ public class InventoryOverlay
         RenderUtils.enableDiffuseLightingGui3D();
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        drawContext.drawGuiTexture(TEXTURE_LOCKED_SLOT, 0, 0, 18, 18, 18);
+        drawContext.drawTexture(TEXTURE_LOCKED_SLOT, 0, 0, 0, 0, 18, 18);
 
         RenderUtils.color(1f, 1f, 1f, 1f);
         matrixStack.pop();
@@ -1116,7 +1104,7 @@ public class InventoryOverlay
         RenderUtils.enableDiffuseLightingGui3D();
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        drawContext.drawGuiTexture(texture, 0, 0, 18, 18, 18);
+        drawContext.drawTexture(texture, 0, 0, 0, 0, 18, 18);
 
         RenderUtils.color(1f, 1f, 1f, 1f);
         matrixStack.pop();
@@ -1148,7 +1136,7 @@ public class InventoryOverlay
         {
             if (i == 0)
             {
-                lines.add(stack.getRarity().getFormatting() + list.get(i).getString());
+                lines.add(stack.getRarity().toString() + list.get(i).getString());
             }
             else
             {
@@ -1176,7 +1164,8 @@ public class InventoryOverlay
             // it's also required when connected to a server;
             // or else not be able to see Enchantment tooltips. (>.>)
             // 1.20.1ではTooltipContext型が違うのでPlayerEntity渡しに戻す
-            List<Text> toolTips = stack.getTooltip(WorldUtils.getBestWorld(mc) instanceof net.minecraft.entity.player.PlayerEntity p ? p : mc.player, mc.options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC);
+            // 1.20.1では第1引数はPlayerEntity、表示用途なのでクライアントプレイヤーで十分
+            List<Text> toolTips = stack.getTooltip(mc.player, mc.options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC);
             if (MaLiLibReference.DEBUG_MODE)
             {
                 dumpStack(stack, toolTips);
@@ -1200,7 +1189,7 @@ public class InventoryOverlay
             return;
         }
 
-        System.out.printf("dumpStack(): [%s]\n", stack.encode(WorldUtils.getBestWorld(GameWrap.getClient()).getRegistryManager()).toString());
+        System.out.printf("dumpStack(): [%s]\n", stack.toString());
 
         if (list != null && !list.isEmpty())
         {

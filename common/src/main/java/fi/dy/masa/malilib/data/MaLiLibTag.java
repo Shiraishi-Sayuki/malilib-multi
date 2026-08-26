@@ -22,6 +22,8 @@ public class MaLiLibTag
     {
         public static final TagKey<Block> ALL_SIGNS_FIX = createBlockTag("all_signs_fix");
         public static final TagKey<Block> ALL_BANNERS_FIX = createBlockTag("all_banners_fix");
+        // 1.20.1のBlockTagsにはCONCRETE_POWDER定数が無いので自分で定義する
+        public static final TagKey<Block> CONCRETE_POWDER = createBlockTag("concrete_powder");
         public static final TagKey<Block> CONCRETE_POWDER_FIX = createBlockTag("concrete_powder_fix");
         public static final TagKey<Block> CORAL_FANS_FIX = createBlockTag("coral_fans_fix");
         public static final TagKey<Block> LEAVES_FIX = createBlockTag("leaves_fix");
@@ -46,7 +48,7 @@ public class MaLiLibTag
                 BlockTags.CANDLE_CAKES,
                 BlockTags.CANDLES,
                 BlockTags.CEILING_HANGING_SIGNS,
-                BlockTags.CONCRETE_POWDER,
+                MaLiLibTag.Blocks.CONCRETE_POWDER,
                 BlockTags.CORAL_PLANTS,
                 BlockTags.DOORS,
                 BlockTags.FENCE_GATES,
