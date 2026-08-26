@@ -397,4 +397,10 @@ public class StringUtils
     {
         drawContext.drawText(net.minecraft.client.MinecraftClient.getInstance().textRenderer, text, x, y, color, false);
     }
+
+    // 1.21互換ヘルパー - 翻訳キーを文字列にして返す、引数はフォーマット引数
+    public static String translateAsText(String translationKey, Object... args)
+    {
+        return net.minecraft.text.Text.translatable(translationKey, args).getString();
+    }
 }

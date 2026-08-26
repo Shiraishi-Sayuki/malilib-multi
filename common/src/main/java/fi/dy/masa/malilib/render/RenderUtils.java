@@ -44,6 +44,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.village.VillagerData;
+import net.minecraft.village.VillagerProfession;
 import net.minecraft.util.math.random.LocalRandom;
 
 import fi.dy.masa.malilib.config.HudAlignment;
@@ -1129,6 +1132,107 @@ public class RenderUtils
      * @param block
      * @param useBgColors
      */
+public static void setVillagerBackgroundTintColor(VillagerData data, boolean useBgColors)
+    {
+        if (useBgColors && data != null)
+        {
+            VillagerProfession profession = data != null ? data.getProfession() : null;
+            setVillagerBackgroundTintColor(profession, useBgColors);
+            return;
+        }
+
+        color(1f, 1f, 1f, 1f);
+    }
+
+    public static void setVillagerBackgroundTintColor(VillagerProfession profession, boolean useBgColors)
+    {
+        if (useBgColors && profession != null)
+        {
+            final DyeColor dye = getVillagerColor(profession);
+
+            if (dye != null)
+            {
+                final float[] colors = dye.getColorComponents(new float[3]);
+                color(colors[0], colors[1], colors[2], 1f);
+                return;
+            }
+        }
+
+        color(1f, 1f, 1f, 1f);
+    }
+
+    // todo - return real colors
+    public static DyeColor getVillagerColor(VillagerProfession profession)
+    {
+        if (profession == null) return null;
+
+        if (profession.equals(VillagerProfession.NONE))
+        {
+            return DyeColor.BLUE;
+        }
+        else if (profession.equals(VillagerProfession.ARMORER))
+        {
+            return DyeColor.GRAY;
+        }
+        else if (profession.equals(VillagerProfession.BUTCHER))
+        {
+            return DyeColor.PINK;
+        }
+        else if (profession.equals(VillagerProfession.CARTOGRAPHER))
+        {
+            return DyeColor.LIGHT_BLUE;
+        }
+        else if (profession.equals(VillagerProfession.CLERIC))
+        {
+            return DyeColor.PURPLE;
+        }
+        else if (profession.equals(VillagerProfession.FARMER))
+        {
+            return DyeColor.YELLOW;
+        }
+        else if (profession.equals(VillagerProfession.FISHERMAN))
+        {
+            return DyeColor.CYAN;
+        }
+        else if (profession.equals(VillagerProfession.FLETCHER))
+        {
+            return DyeColor.ORANGE;
+        }
+        else if (profession.equals(VillagerProfession.LEATHERWORKER))
+        {
+            return DyeColor.BROWN;
+        }
+        else if (profession.equals(VillagerProfession.LIBRARIAN))
+        {
+            return DyeColor.RED;
+        }
+        else if (profession.equals(VillagerProfession.MASON))
+        {
+            return DyeColor.MAGENTA;
+        }
+        else if (profession.equals(VillagerProfession.NITWIT))
+        {
+            return DyeColor.GREEN;
+        }
+        else if (profession.equals(VillagerProfession.SHEPHERD))
+        {
+            return DyeColor.WHITE;
+        }
+        else if (profession.equals(VillagerProfession.TOOLSMITH))
+        {
+            return DyeColor.LIGHT_GRAY;
+        }
+        else if (profession.equals(VillagerProfession.WEAPONSMITH))
+        {
+            return DyeColor.BLACK;
+        }
+        else
+        {
+            // Unhandled Profession
+            return DyeColor.LIME;
+        }
+    }
+
     public static void setShulkerboxBackgroundTintColor(@Nullable ShulkerBoxBlock block, boolean useBgColors)
     {
         if (block != null && useBgColors)

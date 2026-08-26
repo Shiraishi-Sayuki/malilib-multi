@@ -472,4 +472,70 @@ public class InventoryUtils
 
         return inv;
     }
+
+    // 1.20.1用ヘルパー - 1.21のコンポーネント経由ではなくNBTから直接インベントリを復元する
+
+    // プレイヤーNBTの"EnderItems"からエンダーチェストを作る
+    public static net.minecraft.inventory.EnderChestInventory getPlayerEnderItemsFromNbt(net.minecraft.nbt.NbtCompound playerNbt, net.minecraft.registry.DynamicRegistryManager registry)
+    {
+        net.minecraft.inventory.EnderChestInventory inv = new net.minecraft.inventory.EnderChestInventory();
+
+        if (playerNbt != null && playerNbt.contains("EnderItems", net.minecraft.nbt.NbtElement.COMPOUND_TYPE))
+        {
+            net.minecraft.nbt.NbtList list = playerNbt.getList("EnderItems", net.minecraft.nbt.NbtElement.COMPOUND_TYPE);
+
+            for (int i = 0; i < list.size(); ++i)
+            {
+                net.minecraft.nbt.NbtCompound entry = list.getCompound(i);
+                int slot = entry.getByte("Slot") & 0xFF;
+
+                if (slot >= 0 && slot < inv.size() && entry.contains("id"))
+                {
+                    inv.setStack(slot, net.minecraft.item.ItemStack.fromNbt(entry));
+                }
+            }
+        }
+
+        return inv;
+    }
+
+    // 村人NBTの"Offers" -> "Recipes"から売り商品を取り出す
+    public static net.minecraft.util.collection.DefaultedList<net.minecraft.item.ItemStack> getSellingItemsFromNbt(net.minecraft.nbt.NbtCompound villagerNbt, net.minecraft.registry.DynamicRegistryManager registry)
+    {
+        java.util.ArrayList<net.minecraft.item.ItemStack> items = new java.util.ArrayList<>();
+
+        if (villagerNbt != null && villagerNbt.contains("Offers", net.minecraft.nbt.NbtElement.COMPOUND_TYPE))
+        {
+            net.minecraft.nbt.NbtCompound offers = villagerNbt.getCompound("Offers");
+            net.minecraft.nbt.NbtList recipes = offers.getList("Recipes", net.minecraft.nbt.NbtElement.COMPOUND_TYPE);
+
+            for (int i = 0; i < recipes.size(); ++i)
+            {
+                net.minecraft.nbt.NbtCompound recipe = recipes.getCompound(i);
+
+                if (recipe.contains("sell", net.minecraft.nbt.NbtElement.COMPOUND_TYPE))
+                {
+                    items.add(net.minecraft.item.ItemStack.fromNbt(recipe.getCompound("sell")));
+                }
+            }
+        }
+
+        return net.minecraft.util.collection.DefaultedList.copyOf(items.iterator());
+    }
+
+    // 村人の取引リスト(TradeOfferList)から売り商品を取り出す
+    public static net.minecraft.util.collection.DefaultedList<net.minecraft.item.ItemStack> getSellingItems(net.minecraft.village.TradeOfferList trades)
+    {
+        java.util.ArrayList<net.minecraft.item.ItemStack> items = new java.util.ArrayList<>();
+
+        if (trades != null)
+        {
+            for (net.minecraft.village.TradeOffer offer : trades)
+            {
+                items.add(offer.getSellItem());
+            }
+        }
+
+        return net.minecraft.util.collection.DefaultedList.copyOf(items.iterator());
+    }
 }

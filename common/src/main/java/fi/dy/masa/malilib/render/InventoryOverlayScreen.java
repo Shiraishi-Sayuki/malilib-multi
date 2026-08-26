@@ -64,7 +64,7 @@ public class InventoryOverlayScreen extends Screen implements Drawable
 
     public InventoryOverlayScreen(String modId, @Nullable InventoryOverlay.Context previewData, boolean shulkerBGColors, boolean villagerBGColors)
     {
-        super(StringUtils.translateAsText(MaLiLibReference.MOD_ID + ".gui.title.inventory_overlay", modId));
+        super(net.minecraft.text.Text.literal(StringUtils.translateAsText(MaLiLibReference.MOD_ID + ".gui.title.inventory_overlay", modId)));
         //this.setTitle(StringUtils.translate(MaLiLibReference.MOD_ID + ".gui.title.inventory_overlay", modId));
         //this.setParent(mc.currentScreen);
         this.modId = modId;
@@ -97,15 +97,13 @@ public class InventoryOverlayScreen extends Screen implements Drawable
                     MaLiLib.LOGGER.warn("InventoryOverlayScreen(): Horse inv() = null");
                     return;
                 }
-                armourItems.add(previewData.entity().getEquippedStack(EquipmentSlot.BODY));
-                armourItems.add(previewData.inv().getStack(0));
+                                armourItems.add(previewData.inv().getStack(0));
                 startSlot = 1;
                 totalSlots = previewData.inv().size() - 1;
             }
             else if (previewData.entity() instanceof WolfEntity)
             {
-                armourItems.add(previewData.entity().getEquippedStack(EquipmentSlot.BODY));
-                //armourItems.add(ItemStack.EMPTY);
+                                //armourItems.add(ItemStack.EMPTY);
             }
 
             final InventoryOverlay.InventoryRenderType type = (previewData.entity() instanceof VillagerEntity) ? InventoryOverlay.InventoryRenderType.VILLAGER : InventoryOverlay.getBestInventoryType(previewData.inv(), previewData.nbt() != null ? previewData.nbt() : new NbtCompound(), previewData);
@@ -285,7 +283,7 @@ public class InventoryOverlayScreen extends Screen implements Drawable
             }
             else
             {
-                System.out.printf("[%d] Item Nbt: [%s]\n", i, entry.encode(registry));
+                System.out.printf("[%d] Item Nbt: [%s]\n", i, entry.toString());
             }
 
             i++;
