@@ -107,10 +107,10 @@ public class NbtBlockUtils
      * @param nbt  ()
      * @return ()
      */
-    public static Pair<RegistryEntry<StatusEffect>, RegistryEntry<StatusEffect>> getBeaconEffectsFromNbt(@Nonnull NbtCompound nbt)
+    public static Pair<StatusEffect, StatusEffect> getBeaconEffectsFromNbt(@Nonnull NbtCompound nbt)
     {
-        RegistryEntry<StatusEffect> primary = null;
-        RegistryEntry<StatusEffect> secondary = null;
+        StatusEffect primary = null;
+        StatusEffect secondary = null;
 
         if (nbt.contains(NbtKeys.PRIMARY_EFFECT, Constants.NBT.TAG_STRING))
         {

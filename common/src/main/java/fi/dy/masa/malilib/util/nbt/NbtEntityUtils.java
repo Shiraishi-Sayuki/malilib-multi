@@ -266,9 +266,9 @@ public class NbtEntityUtils
      * @param nbt ()
      * @return ()
      */
-    public static Map<RegistryEntry<StatusEffect>, StatusEffectInstance> getActiveStatusEffectsFromNbt(@Nonnull NbtCompound nbt)
+    public static Map<StatusEffect, StatusEffectInstance> getActiveStatusEffectsFromNbt(@Nonnull NbtCompound nbt)
     {
-        Map<RegistryEntry<StatusEffect>, StatusEffectInstance> statusEffects = Maps.newHashMap();
+        Map<StatusEffect, StatusEffectInstance> statusEffects = Maps.newHashMap();
 
         if (nbt.contains(NbtKeys.EFFECTS, Constants.NBT.TAG_LIST))
         {
