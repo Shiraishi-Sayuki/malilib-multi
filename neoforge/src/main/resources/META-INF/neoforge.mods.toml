@@ -1,0 +1,30 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "LGPLv3"
+
+[[mods]]
+modId = "malilib"
+version = "${mod_version}"
+displayName = "MaLiLib"
+updateJSONURL = "https://masa.dy.fi/maven/malilib/malilib.json"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/malilib"
+logoFile = "assets/malilib/icon.png"
+authors = "masa, Shiraishi Sayuki (multiloader port)"
+description = "A library mod required by masa's client-side mods"
+accessTransformers = [
+  "META-INF/accesstransformer.cfg"
+]
+
+[[dependencies.malilib]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.2,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.malilib]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.2,)"
+ordering = "NONE"
+side = "CLIENT"
