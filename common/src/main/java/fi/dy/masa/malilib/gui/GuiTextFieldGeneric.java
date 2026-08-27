@@ -80,6 +80,16 @@ public class GuiTextFieldGeneric extends TextFieldWidget
                mouseY >= this.y && mouseY < this.y + this.height;
     }
 
+    public void setCursorPosition(int pos)
+    {
+        this.setCursor(pos);
+    }
+
+    public int getCursorPosition()
+    {
+        return this.getCursor();
+    }
+
     public GuiTextFieldGeneric setZLevel(int zLevel)
     {
         this.zLevel = zLevel;
