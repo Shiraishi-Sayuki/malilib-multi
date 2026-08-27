@@ -43,13 +43,5 @@
 	},
 	"suggests": {
 		"modmenu": "*"
-	},
-	"breaks": {
-        "sodium": "<0.9.0-",
-		"iris": "<1.11.1-",
-		"itemscroller": "<0.32.1-",
-		"litematica": "<0.28.5-",
-		"minihud": "<0.40.5-",
-		"tweakeroo": "<0.29.3-"
 	}
 }
