@@ -73,8 +73,6 @@ import fi.dy.masa.malilib.MaLiLibReference;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.event.RenderEventHandler;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.interfaces.IGuiRendererInvoker;
-import fi.dy.masa.malilib.mixin.gui.IMixinGuiRenderer;
 import fi.dy.masa.malilib.mixin.render.IMixinGameRenderer;
 import fi.dy.masa.malilib.mixin.render.IMixinLevelRenderer;
 import fi.dy.masa.malilib.render.element.*;
@@ -110,24 +108,44 @@ public class RenderUtils
     @ApiStatus.Internal
     public static void registerSpecialGuiRenderers(GuiRenderer guiRenderer, Minecraft mc)
     {
-        ImmutableMap.Builder<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>> builder = new ImmutableMap.Builder<>();
-
-        // Build new ImmutableMap
-        builder.putAll(((IMixinGuiRenderer) guiRenderer).malilib_getSpecialGuiRenderers());
-
-        // Add Gui Block Model Renderer
-        builder.put(MaLiLibBlockStateGuiElement.class, new MaLiLibBlockStateGuiElementRenderer());
-
-        // Event Callback
-        ((RenderEventHandler) RenderEventHandler.getInstance()).onRegisterSpecialGuiRenderer(guiRenderer, mc, builder);
-
-        // Invoke / Update
-        ((IGuiRendererInvoker) guiRenderer).malilib$replaceSpecialGuiRenderers(builder.buildOrThrow());
-
-        // Debug Built Map
-        if (MaLiLibReference.DEBUG_MODE)
+        try
         {
-            dumpBuilderMap(((IMixinGuiRenderer) guiRenderer).malilib_getSpecialGuiRenderers());
+            // NeoForge 26.2 refactored GuiRenderer.pictureInPictureRenderers -> pictureInPictureRendererPools (type changed to Pool)
+            // Use reflection to stay compatible with both Fabric (old field) and NeoForge (new field). On NeoForge, skip custom PIP renderer.
+            java.lang.reflect.Field field;
+            try
+            {
+                field = GuiRenderer.class.getDeclaredField("pictureInPictureRenderers");
+            }
+            catch (NoSuchFieldException e)
+            {
+                // NeoForge 26.2: field renamed to pictureInPictureRendererPools with incompatible type
+                MaLiLib.LOGGER.debug("registerSpecialGuiRenderers: pictureInPictureRenderers not found (NeoForge 26.2), skipping custom PIP renderer");
+                return;
+            }
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>> orig =
+                    (Map<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>>) field.get(guiRenderer);
+
+            ImmutableMap.Builder<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>> builder = new ImmutableMap.Builder<>();
+            builder.putAll(orig);
+            builder.put(MaLiLibBlockStateGuiElement.class, new MaLiLibBlockStateGuiElementRenderer());
+            ((RenderEventHandler) RenderEventHandler.getInstance()).onRegisterSpecialGuiRenderer(guiRenderer, mc, builder);
+            Map<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>> newMap = builder.buildOrThrow();
+            field.set(guiRenderer, new HashMap<>(newMap));
+
+            if (MaLiLibReference.DEBUG_MODE)
+            {
+                @SuppressWarnings("unchecked")
+                Map<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>> after =
+                        (Map<Class<? extends PictureInPictureRenderState>, PictureInPictureRenderer<?>>) field.get(guiRenderer);
+                dumpBuilderMap(after);
+            }
+        }
+        catch (Exception e)
+        {
+            MaLiLib.LOGGER.warn("registerSpecialGuiRenderers: failed to register special GUI renderers: {}", e.toString());
         }
     }
 

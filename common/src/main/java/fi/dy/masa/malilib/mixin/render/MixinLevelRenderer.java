@@ -33,7 +33,8 @@ public abstract class MixinLevelRenderer
 	        at = @At(value = "INVOKE",
 	                 target = "Lnet/minecraft/client/renderer/LevelRenderer;addWeatherPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V",
 	                 shift = At.Shift.BEFORE
-	        ))
+	        ),
+	        require = 0)
 	private void malilib_onRenderWorldPreWeather(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker,
 	                                             boolean renderOutline, CameraRenderState cameraState, Matrix4fc modelViewMatrix,
 	                                             GpuBufferSlice terrainFog, Vector4f fogColor, boolean shouldRenderSky,
@@ -49,7 +50,8 @@ public abstract class MixinLevelRenderer
 	        at = @At(value = "INVOKE",
 	                 target = "Lnet/minecraft/client/renderer/LevelRenderer;addAlwaysOnTopPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher$PreparedFrame;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V",
 	                 shift = At.Shift.BEFORE
-	        ))
+	        ),
+	        require = 0)
 	private void malilib_onRenderWorldLast(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker,
 	                                       boolean renderOutline, CameraRenderState cameraState, Matrix4fc modelViewMatrix,
 	                                       GpuBufferSlice terrainFog, Vector4f fogColor, boolean shouldRenderSky,

@@ -3,7 +3,6 @@ package fi.dy.masa.malilib.test.config.value;
 import com.google.common.collect.ImmutableList;
 
 import fi.dy.masa.malilib.config.value.BaseOptionListConfigValue;
-import fi.dy.masa.malilib.config.value.OptionListConfigValue;
 
 /**
  * Post-ReWrite code

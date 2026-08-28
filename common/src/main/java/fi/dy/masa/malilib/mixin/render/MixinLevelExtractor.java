@@ -26,7 +26,8 @@ public abstract class MixinLevelExtractor
 	                 target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
 	                 ordinal = 6,
 	                 shift = At.Shift.BEFORE
-	        ))
+	        ),
+	        require = 0)
 	private void malilib_onExtractWorldPreWeather(DeltaTracker deltaTracker, Camera camera,
 	                                              float deltaPartialTick, CallbackInfo ci,
 	                                              @Local(name = "profiler") ProfilerFiller profiler)
@@ -39,7 +40,8 @@ public abstract class MixinLevelExtractor
 	                 target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
 	                 ordinal = 11,
 	                 shift = At.Shift.BEFORE
-	        ))
+	        ),
+	        require = 0)
 	private void malilib_onExtractWorldLast(DeltaTracker deltaTracker, Camera camera,
 	                                        float deltaPartialTick, CallbackInfo ci,
 	                                        @Local(name = "profiler") ProfilerFiller profiler)

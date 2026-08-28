@@ -5,7 +5,6 @@ import java.util.Set;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import fi.dy.masa.malilib.MaLiLib;
 
 public class MaLiLibMixinConfigPlugin implements IMixinConfigPlugin
 {

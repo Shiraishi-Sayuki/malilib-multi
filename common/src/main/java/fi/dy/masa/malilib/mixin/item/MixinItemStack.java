@@ -38,11 +38,14 @@ public abstract class MixinItemStack
     }
 
     // This Goes before the Item durability, item id, and component count.
+    // NeoForge 26.2 patches addDetailsToTooltip to delegate to ItemTooltipHandler, so this INVOKE no longer exists there (moved to addDetailsToTooltipTail).
+    // Make it non-required so game can boot on NeoForge.
     @Inject(method = "addDetailsToTooltip(Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/TooltipFlag;Ljava/util/function/Consumer;)V",
             at = @At(value = "INVOKE",
                      target = "Lnet/minecraft/world/item/ItemStack;addToTooltip(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V",
                      ordinal = 23,
-                     shift = At.Shift.AFTER))
+                     shift = At.Shift.AFTER),
+            require = 0)
     private void onGetTooltipComponentsLast(Item.TooltipContext context, TooltipDisplay display,
                                             Player player, TooltipFlag tooltipFlag, Consumer<Component> builder, CallbackInfo ci)
     {

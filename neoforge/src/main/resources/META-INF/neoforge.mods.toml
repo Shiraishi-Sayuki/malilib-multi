@@ -15,6 +15,9 @@ accessTransformers = [
   "META-INF/accesstransformer.cfg"
 ]
 
+[[mixins]]
+config = "mixins.malilib.json"
+
 [[dependencies.malilib]]
 modId = "neoforge"
 type = "required"

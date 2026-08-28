@@ -63,7 +63,8 @@ public class i18nManager
 	private void readKeys()
 	{
 		final String baseString = "/"+this.baseString;
-		URL resource = i18nManager.class.getResource(baseString);
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		URL resource = cl != null ? cl.getResource(baseString.substring(1)) : null;
 
 		if (resource != null)
 		{

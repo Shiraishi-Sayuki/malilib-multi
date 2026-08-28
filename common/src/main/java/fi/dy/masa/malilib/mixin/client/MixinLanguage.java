@@ -27,7 +27,8 @@ public class MixinLanguage
 			at = @At(
 					value = "INVOKE",
 					target = "Ljava/util/function/BiConsumer;accept(Ljava/lang/Object;Ljava/lang/Object;)V"
-			)
+			),
+			require = 0
 	)
 	private static void malilib_onLoadCustomText(Args args, @Local(name = "entry") Map.Entry<String, JsonElement> entry)
 	{

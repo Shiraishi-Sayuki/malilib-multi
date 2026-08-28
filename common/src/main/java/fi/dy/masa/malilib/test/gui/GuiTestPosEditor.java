@@ -3,7 +3,6 @@ package fi.dy.masa.malilib.test.gui;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import fi.dy.masa.malilib.MaLiLib;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.interfaces.ICoordinateValueModifier;

@@ -21,5 +21,6 @@ public class MaLiLibNeoForge {
         modEventBus.addListener((RegisterPayloadHandlersEvent event) -> {
             NeoForgeNetworkHelper.setRegistrar(event.registrar("malilib"));
         });
+
     }
 }

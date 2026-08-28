@@ -2,7 +2,6 @@ package fi.dy.masa.malilib.compat.iris;
 
 import fi.dy.masa.malilib.MaLiLib;
 import fi.dy.masa.malilib.compat.ModIds;
-import fi.dy.masa.malilib.render.MaLiLibPipelines;
 import com.sayuki.malilib.platform.Services;
 
 public class IrisCompat

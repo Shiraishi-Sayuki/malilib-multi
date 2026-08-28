@@ -30,7 +30,7 @@ public class i18nLang
 	protected static i18nLang load(final String dir, final String langCode) throws IOException
 	{
 		final String filePath = "/"+dir+"/"+langCode+".json";
-		InputStream is = i18nLang.class.getResourceAsStream(filePath);
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
 		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 		i18nLang lang = new i18nLang(langCode);
 
