@@ -87,22 +87,17 @@ public class StringUtils
 //            }
 //        }
 
-        if (Services.PLATFORM.getAllModVersions().containsKey(modId))
+        try
         {
-            return Services.PLATFORM.getAllModVersions().get(modId);
+            var map = Services.PLATFORM.getAllModVersions();
+            if (map.containsKey(modId))
+            {
+                return map.get(modId);
+            }
         }
+        catch (Exception ignored) {}
 
         return "?";
-    }
-
-    public static String getMCVersionString()
-    {
-        return MaLiLibReference.MC_VERSION;
-    }
-
-    public static int getMCDataVersion()
-    {
-        return MaLiLibReference.MC_DATA_VERSION;
     }
 
     /**
