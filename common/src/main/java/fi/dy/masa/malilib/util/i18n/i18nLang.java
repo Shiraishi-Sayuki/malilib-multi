@@ -55,7 +55,8 @@ public class i18nLang
 			else
 			{
 				MaLiLib.LOGGER.error("i18nLang#load: Error; file not found: '{}'", filePath);
-				return null;
+				lang.map = builder.build();
+				return lang;
 			}
 		}
 		catch (Throwable t)

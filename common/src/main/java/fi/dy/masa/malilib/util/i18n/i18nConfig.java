@@ -23,7 +23,26 @@ public class i18nConfig implements IConfigOptionListEntry, StringRepresentable
 	{
 		this.manager = manager;
 		this.options = ImmutableCopy.of(manager.getLanguageOptions()).toList();
-		this.selectedOption = manager.getLang().toOption();
+		i18nLang lang = manager.getLang();
+		if (lang == null) lang = manager.getDefaultLang();
+		if (lang != null)
+		{
+			this.selectedOption = lang.toOption();
+		}
+		else if (!this.options.isEmpty())
+		{
+			this.selectedOption = this.options.get(0);
+		}
+		else
+		{
+			// Fallback dummy option to avoid NPE during early init before langs are loaded
+			this.selectedOption = i18nOption.fromString(i18nManager.DEFAULT_LANG);
+			if (this.selectedOption == null)
+			{
+				// Should not happen, but create a minimal fallback
+				this.selectedOption = this.options.isEmpty() ? null : this.options.get(0);
+			}
+		}
 		this.calculateIndex();
 	}
 
