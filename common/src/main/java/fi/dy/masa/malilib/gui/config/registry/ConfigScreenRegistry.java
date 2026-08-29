@@ -23,7 +23,7 @@ public class ConfigScreenRegistry
     {
     }
 
-    public void registerConfigScreenFactory(ModInfo modInfo)
+    public synchronized void registerConfigScreenFactory(ModInfo modInfo)
     {
         this.modsMap.put(modInfo.modId(), modInfo);
         ArrayList<ModInfo> list = new ArrayList<>(this.modsMap.values());
