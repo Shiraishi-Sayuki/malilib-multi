@@ -1,6 +1,8 @@
 package com.sayuki.malilib.neoforge;
 
 import com.sayuki.malilib.platform.INetworkHelper;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
@@ -20,7 +22,18 @@ public class NeoForgeNetworkHelper implements INetworkHelper {
             return;
         }
         try {
-            Class<?> regClass = registrar.getClass();
+            Object target = registrar;
+
+            // optional() を付けないと NeoForge はチャンネルを「必須」とみなし、
+            // 該当 MOD の無いサーバーへ接続しただけで mod 不一致で切断される。
+            // optional() は新しい registrar を返すので、以降はそのコピーに登録する。
+            try {
+                target = target.getClass().getMethod("optional").invoke(target);
+            } catch (NoSuchMethodException ignored) {
+                // optional() が無い古い NeoForge ではそのまま登録する
+            }
+
+            Class<?> regClass = target.getClass();
             Object dummyHandler = createDummyHandler();
             String methodName;
             if (toServer && toClient) methodName = "playBidirectional";
@@ -31,7 +44,7 @@ public class NeoForgeNetworkHelper implements INetworkHelper {
             boolean invoked = false;
             for (java.lang.reflect.Method m : regClass.getMethods()) {
                 if (m.getName().equals(methodName) && m.getParameterCount() == 2) {
-                    m.invoke(registrar, id, codec);
+                    m.invoke(target, id, codec);
                     invoked = true;
                     break;
                 }
@@ -39,7 +52,7 @@ public class NeoForgeNetworkHelper implements INetworkHelper {
             if (!invoked && dummyHandler != null) {
                 for (java.lang.reflect.Method m : regClass.getMethods()) {
                     if (m.getName().equals(methodName) && m.getParameterCount() == 3) {
-                        m.invoke(registrar, id, codec, dummyHandler);
+                        m.invoke(target, id, codec, dummyHandler);
                         invoked = true;
                         break;
                     }
@@ -66,19 +79,18 @@ public class NeoForgeNetworkHelper implements INetworkHelper {
     @Override
     public <T extends CustomPayload> boolean sendToServer(T payload) {
         try {
-            Class<?> distributorClass = Class.forName("net.neoforged.neoforge.network.PacketDistributor");
-            distributorClass.getMethod("sendToServer", CustomPayload.class).invoke(null, payload);
-            return true;
-        } catch (Exception e1) {
-            try {
-                // Try MojMap name
-                Class<?> distributorClass = Class.forName("net.neoforged.neoforge.network.PacketDistributor");
-                Class<?> payloadClass = Class.forName("net.minecraft.network.protocol.common.custom.CustomPacketPayload");
-                distributorClass.getMethod("sendToServer", payloadClass).invoke(null, payload);
-                return true;
-            } catch (Exception e2) {
+            ClientPlayNetworkHandler handler = MinecraftClient.getInstance().getNetworkHandler();
+
+            // サーバーがこのチャンネルをネゴシエートしていない場合は送らない。
+            // 送ってしまうと NeoForge が UnsupportedOperationException で切断する。
+            if (handler == null || handler.hasChannel(payload.getId()) == false) {
                 return false;
             }
+
+            handler.send(payload);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
