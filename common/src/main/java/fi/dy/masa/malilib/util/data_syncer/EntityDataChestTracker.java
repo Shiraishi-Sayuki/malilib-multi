@@ -12,13 +12,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 
 import fi.dy.masa.malilib.MaLiLib;
+import fi.dy.masa.malilib.MaLiLibConfigs;
 import fi.dy.masa.malilib.MaLiLibReference;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.InventoryUtils;
@@ -62,6 +62,25 @@ public class EntityDataChestTracker
 		return this.enderCache;
 	}
 
+	protected void onRegister()
+	{
+		this.onReset();
+	}
+
+	protected void onReset()
+	{
+		if (this.enderCache != null)
+		{
+			try
+			{
+				this.enderCache.close();
+			}
+			catch (Exception ignored) {}
+		}
+
+		this.enderCache = null;
+	}
+
 	public void onCloseEnderChest(@Nonnull Container inv)
 	{
 		if (this.enderCache != null)
@@ -84,6 +103,7 @@ public class EntityDataChestTracker
 
 	public void onContainerMenuClosed(AbstractContainerMenu menu)
 	{
+		if (!MaLiLibConfigs.Generic.ENABLE_CHEST_DATA_TRACKER.getBooleanValue()) { return; }
 		Minecraft mc = Minecraft.getInstance();
 		Level level = WorldUtils.getBestWorld(mc);
 
@@ -94,15 +114,7 @@ public class EntityDataChestTracker
 			return;
 		}
 
-		NonNullList<Slot> list = NonNullList.create();
-
-		for (Slot slot : menu.slots)
-		{
-			if (slot.hasItem() && !slot.isFake())
-			{
-				list.add(slot);
-			}
-		}
+		NonNullList<ItemStack> list = InventoryUtils.getItemsFromSlots(menu.slots);
 
 		if (list.isEmpty())
 		{
@@ -112,9 +124,9 @@ public class EntityDataChestTracker
 		}
 
 		final int containerId = menu.containerId;
-		Container inv = list.getFirst().container;
+		Container inv = InventoryUtils.getAsInventory(list);
 
-		if (!inv.isEmpty())
+		if (inv != null)        // Empty is a valid Inventory.
 		{
 			Container tempInv = null;
 			BlockEntity tempTE = null;
@@ -138,17 +150,17 @@ public class EntityDataChestTracker
 
 							if (InventoryUtils.areStacksAndNbtEqual(stackA, stackB))
 							{
-								Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), inv);
+								Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), inv, false);
 							}
 						}
 						else
 						{
-							Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), inv);     // On a Server; we cannot verify the slots
+							Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), inv, false);     // On a Server; we cannot verify the slots
 						}
 					}
 					else if (inv.getContainerSize() > cc.getContainerSize() && !mc.hasSingleplayerServer())
 					{
-						Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), inv);        // On a Server; we cannot verify the slots
+						Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), inv, false);        // On a Server; we cannot verify the slots
 					}
 					else
 					{
@@ -169,8 +181,8 @@ public class EntityDataChestTracker
 
 								if (InventoryUtils.areStacksAndNbtEqual(stackA, stackB))
 								{
-									Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, tempTE, tempInv);
-									Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), cc);
+									Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, tempTE, tempInv, false);
+									Registry.ENTITY_DATA_REGISTRY.addTEToCache(level, pair.getRight(), cc, false);
 								}
 							}
 						}

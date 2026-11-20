@@ -1,7 +1,6 @@
 package fi.dy.masa.malilib;
 
 import java.nio.file.Path;
-
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.SharedConstants;

@@ -6,11 +6,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -20,20 +23,22 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.ItemStackWithSlot;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.*;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
 
 import fi.dy.masa.malilib.MaLiLib;
 import fi.dy.masa.malilib.util.MathUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.Constants;
+import fi.dy.masa.malilib.util.data.ImmutableCopy;
 import fi.dy.masa.malilib.util.data.tag.BaseData;
 import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.malilib.util.data.tag.ListData;
@@ -62,10 +67,32 @@ public class NbtInventory implements AutoCloseable
             builder.set(DataComponents.LORE, new ItemLore(List.of(StringUtils.translateAsText("malilib.gui.tooltip.nbt.has_loot_table"))));
             Holder<Item> ref = BuiltInRegistries.ITEM.wrapAsHolder(Items.BARRIER);
             inv.setItem(0, new ItemStack(ref, 1, builder.build()));
-            // Items.BARRIER.builtInRegistryHolder()
         }
         catch (Exception _) {}
         return inv;
+    }
+
+    /**
+     * We provide this in case of network problems; and the method requires a BlockEntity object.
+     * A {@link DecoratedPotBlockEntity} only provides a single slot; and
+     * it also extends {@link RandomizableContainer}; so it's perfect to use here.
+     * @param pos -
+     * @return -
+     */
+    public static BlockEntity createLootableTileEntityAt(@Nonnull BlockPos pos)
+    {
+        DecoratedPotBlockEntity pot = BlockEntityTypes.DECORATED_POT.create(pos, Blocks.DECORATED_POT.defaultBlockState());
+
+        try
+        {
+            DataComponentPatch.Builder builder = DataComponentPatch.builder();
+            builder.set(DataComponents.LORE, new ItemLore(List.of(StringUtils.translateAsText("malilib.gui.tooltip.nbt.has_loot_table"))));
+            Holder<Item> ref = BuiltInRegistries.ITEM.wrapAsHolder(Items.BARRIER);
+            pot.setTheItem(new ItemStack(ref, 1, builder.build()));
+        }
+        catch (Exception _) {}
+
+        return pot;
     }
 
     public static final int SINGLE_SIZE = 1;
@@ -95,6 +122,24 @@ public class NbtInventory implements AutoCloseable
 //        LOGGER.info("create() size: [{}]", size);
         size = getAdjustedSize(MathUtils.clamp(size, 1, MAX_SIZE));
         newInv.buildEmptyList(size);
+        return newInv;
+    }
+
+    /**
+     * Create a new {@link NbtInventory} from a Set of {@link EntrySlot}
+     * @param items -
+     * @return -
+     */
+    public static NbtInventory create(@Nonnull Set<EntrySlot> items)
+    {
+        NbtInventory newInv = new NbtInventory();
+
+//        LOGGER.info("create() size: [{}]", items.size());
+        items.forEach(
+                (slot) ->
+		                newInv.items.add(new EntrySlot(slot.slot(), slot.stack().copy()))
+        );
+
         return newInv;
     }
 
@@ -385,6 +430,47 @@ public class NbtInventory implements AutoCloseable
         );
 
         return inv;
+    }
+
+    /**
+     * Split this Inventory into equal halves.  This is meant to be used to
+     * split up a Double Chest into two halves; for example.
+     *
+     * @return -
+     */
+    public Pair<Container, Container> splitInventory() throws IllegalStateException
+    {
+        if (this.size() % 2 != 0)
+        {
+            throw new IllegalStateException("Inventory Size of '"+this.size()+"' must be even number!");
+        }
+
+        final int splitSize = this.size() / 2;
+        final int sizeAdj = getAdjustedSize(Math.clamp((splitSize * 2L), this.size(), MAX_SIZE));
+        final int halfSize = sizeAdj / 2;
+        Container inv1 = new SimpleContainer(halfSize);
+        Container inv2 = new SimpleContainer(halfSize);
+        ImmutableList<EntrySlot> list = ImmutableCopy.of(this.items.stream().toList()).toList();
+//        LOGGER.warn("splitInventory(): sizeAdj [{}] -> halfSize [{}]", sizeAdj, halfSize);
+
+        for (int i = 0; i < list.size(); i++)
+        {
+            EntrySlot entry = list.get(i);
+            int slot = entry.slot();
+            ItemStack stack = entry.stack();
+
+            if (slot < halfSize)
+            {
+                inv1.setItem(slot, stack.copy());
+            }
+            else
+            {
+                inv2.setItem((slot - halfSize), stack.copy());
+            }
+        }
+
+//        LOGGER.debug("splitInventory(): inv1 [{}] -> inv2 [{}]", inv1.getContainerSize(), inv2.getContainerSize());
+        return Pair.of(inv1, inv2);
     }
 
     /**
@@ -1009,7 +1095,7 @@ public class NbtInventory implements AutoCloseable
 
             try
             {
-                data = (CompoundData) ItemStack.CODEC.encodeStart(ops, this.stack).getOrThrow();
+                data = (CompoundData) ItemStack.CODEC.encodeStart(ops, this.stack).getPartialOrThrow();
             }
             catch (Exception e)
             {
@@ -1022,7 +1108,7 @@ public class NbtInventory implements AutoCloseable
                 DataComponentPatch.Builder builder = DataComponentPatch.builder();
                 builder.set(DataComponents.LORE, lore);
                 ItemStack fallback = new ItemStack(BuiltInRegistries.ITEM.wrapAsHolder(Items.BARRIER), 1, builder.build());
-                data = (CompoundData) ItemStack.CODEC.encodeStart(ops, fallback).getOrThrow();
+                data = (CompoundData) ItemStack.CODEC.encodeStart(ops, fallback).getPartialOrThrow();
             }
 
             data.putByte(NbtKeys.SLOT, (byte) this.slot);
@@ -1037,7 +1123,7 @@ public class NbtInventory implements AutoCloseable
 
             try
             {
-                stack = ItemStack.CODEC.parse(ops, data).getOrThrow();
+                stack = ItemStack.CODEC.parse(ops, data).getPartialOrThrow();
             }
             catch (Exception e)
             {
@@ -1063,7 +1149,7 @@ public class NbtInventory implements AutoCloseable
 
             try
             {
-                nbt = (CompoundTag) ItemStack.CODEC.encodeStart(ops, this.stack).getOrThrow();
+                nbt = (CompoundTag) ItemStack.CODEC.encodeStart(ops, this.stack).getPartialOrThrow();
             }
             catch (Exception e)
             {
@@ -1076,7 +1162,7 @@ public class NbtInventory implements AutoCloseable
                 DataComponentPatch.Builder builder = DataComponentPatch.builder();
                 builder.set(DataComponents.LORE, lore);
                 ItemStack fallback = new ItemStack(BuiltInRegistries.ITEM.wrapAsHolder(Items.BARRIER), 1, builder.build());
-                nbt = (CompoundTag) ItemStack.CODEC.encodeStart(ops, fallback).getOrThrow();
+                nbt = (CompoundTag) ItemStack.CODEC.encodeStart(ops, fallback).getPartialOrThrow();
             }
 
             nbt.putByte(NbtKeys.SLOT, (byte) this.slot);
@@ -1091,7 +1177,7 @@ public class NbtInventory implements AutoCloseable
 
             try
             {
-                stack = ItemStack.CODEC.parse(ops, nbt).getOrThrow();
+                stack = ItemStack.CODEC.parse(ops, nbt).getPartialOrThrow();
             }
             catch (Exception e)
             {

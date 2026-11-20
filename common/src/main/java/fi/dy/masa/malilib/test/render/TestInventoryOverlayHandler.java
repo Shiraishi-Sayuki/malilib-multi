@@ -38,6 +38,7 @@ import fi.dy.masa.malilib.interfaces.IDataSyncer;
 import fi.dy.masa.malilib.interfaces.IInventoryOverlayHandler;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractHorseEntity;
 import fi.dy.masa.malilib.mixin.entity.IMixinAbstractNautilus;
+import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.render.GuiContext;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.InventoryOverlayContext;
@@ -48,10 +49,8 @@ import fi.dy.masa.malilib.util.InventoryUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.malilib.util.data.Constants;
 import fi.dy.masa.malilib.util.data.DataBlockUtils;
-import fi.dy.masa.malilib.util.data.DataEntityUtils;
 import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.malilib.util.data.tag.ListData;
-import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
 import fi.dy.masa.malilib.util.game.RayTraceUtils;
 import fi.dy.masa.malilib.util.nbt.NbtInventory;
 import fi.dy.masa.malilib.util.nbt.NbtKeys;
@@ -200,24 +199,12 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 
 			if (blockTmp instanceof EntityBlock)
 			{
-				if (world instanceof ServerLevel)
-				{
-					be = world.getChunkAt(pos).getBlockEntity(pos);
+				Pair<BlockEntity, CompoundData> pair = this.getDataSyncer().requestBlockEntity(world, pos);
 
-					if (be != null)
-					{
-						data = DataConverterNbt.fromVanillaCompound(be.saveWithFullMetadata(world.registryAccess()));
-					}
-				}
-				else
+				if (pair != null)
 				{
-					Pair<BlockEntity, CompoundData> pair = this.getDataSyncer().requestBlockEntity(world, pos);
-
-					if (pair != null)
-					{
-						data = pair.getRight();
-						be = pair.getLeft();
-					}
+					data = pair.getRight();
+					be = pair.getLeft();
 				}
 
 				MaLiLib.LOGGER.warn("getTarget():2: pos [{}], be [{}], data [{}]", pos.toShortString(), be != null, data != null);
@@ -242,23 +229,11 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 
 			MaLiLib.LOGGER.warn("getTarget(): entityUUID [{}] vs targetedUUID [{}]", entity.getStringUUID(), mc.crosshairPickEntity != null ? mc.crosshairPickEntity.getStringUUID() : "<NULL>");
 
-			if (world instanceof ServerLevel)
-			{
-				entity = world.getEntity(entity.getId());
+			Pair<Entity, CompoundData> pair = this.getDataSyncer().requestEntity(world, entity.getId());
 
-				if (entity != null)
-				{
-					return this.getTargetInventoryFromEntity(entity, DataEntityUtils.invokeEntityDataTagNoPassengers(entity, entity.getId()));
-				}
-			}
-			else
+			if (pair != null)
 			{
-				Pair<Entity, CompoundData> pair = this.getDataSyncer().requestEntity(world, entity.getId());
-
-				if (pair != null)
-				{
-					return this.getTargetInventoryFromEntity(world.getEntity(pair.getLeft().getId()), pair.getRight());
-				}
+				return this.getTargetInventoryFromEntity(world.getEntity(pair.getLeft().getId()), pair.getRight());
 			}
 		}
 
@@ -268,32 +243,7 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 	@Override
 	public @Nullable InventoryOverlayContext getTargetInventoryFromBlock(Level world, BlockPos pos, @Nullable BlockEntity be, CompoundData data)
 	{
-		Container inv;
-
-//		if (be != null)
-//		{
-//			if (data.isEmpty())
-//			{
-//				data = DataConverterNbt.fromVanillaCompound(be.saveWithFullMetadata(world.registryAccess()));
-//			}
-//
-//			inv = InventoryUtils.getInventory(world, pos);
-//		}
-//		else
-//		{
-//			if (data.isEmpty())
-//			{
-//				Pair<BlockEntity, CompoundData> pair = this.getDataSyncer().requestBlockEntity(world, pos);
-//
-//				if (pair != null)
-//				{
-//					data = pair.getRight();
-//					be = pair.getLeft();
-//				}
-//			}
-
-			inv = this.getDataSyncer().getBlockInventory(world, pos, false);
-//		}
+		Container inv = this.getDataSyncer().getBlockInventory(world, pos, true);
 
 		BlockEntityType<?> beType = data != null ? DataBlockUtils.getBlockEntityType(data) : null;
 		MaLiLib.LOGGER.error("getTargetInventoryFromBlock() beType: [{}], inv [{}]", beType != null ? beType.getClass().getSimpleName() : "<null>", inv != null ? inv.getContainerSize() : "<null>");
@@ -310,6 +260,7 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 					// Fetch your own EnderItems from Server ...
 					Pair<Entity, CompoundData> enderPair = this.getDataSyncer().requestEntity(world, player.getId());
 					PlayerEnderChestContainer enderItems = null;
+					NbtInventory enderCache = Registry.ENTITY_DATA_REGISTRY.chestTracker().getEnderCache();
 
 					if (enderPair != null && enderPair.getRight() != null && enderPair.getRight().contains(NbtKeys.ENDER_ITEMS, Constants.NBT.TAG_LIST))
 					{
@@ -320,7 +271,11 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 						enderItems = player.getEnderChestInventory();
 					}
 
-					if (enderItems != null)
+					if (enderCache != null && !enderCache.isEmpty())
+					{
+						inv = enderCache.toInventory(-1);
+					}
+					else if (enderItems != null)
 					{
 						inv = enderItems;
 					}
@@ -386,6 +341,7 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 		this.context = new InventoryOverlayContext(InventoryOverlay.getBestInventoryType(inv, data), inv,
 		                                              be != null ? be : world.getBlockEntity(pos), null,
 		                                              data, this.getRefreshHandler());
+//		dumpContext(this.context);
 
 		return this.context;
 	}
@@ -489,6 +445,7 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 		                                              ? InventoryOverlay.getBestInventoryType(inv, data)
 		                                              : InventoryOverlay.getInventoryType(data),
 		                                              inv, null, entityLivingBase, data, this.getRefreshHandler());
+//		dumpContext(this.context);
 
 		return this.context;
 	}
@@ -519,6 +476,8 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 		@Override
 		public InventoryOverlayContext onContextRefresh(InventoryOverlayContext data, Level world)
 		{
+			MaLiLib.LOGGER.warn("onContextRefresh()");
+
 			// Refresh data
 			if (data.be() != null)
 			{
@@ -532,6 +491,7 @@ public class TestInventoryOverlayHandler implements IInventoryOverlayHandler
 				data = TestInventoryOverlayHandler.getInstance().getTargetInventoryFromEntity(data.entity(), data.data());
 			}
 
+//			TestInventoryOverlayHandler.dumpContext(data);
 			return data;
 		}
 	}
